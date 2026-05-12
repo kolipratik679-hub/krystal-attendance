@@ -1,0 +1,10 @@
+[2026-05-12 04:59:32] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-12 05:00:12] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=1 | context={"user_id":1,"role":"shift"}
+[2026-05-12 05:00:17] [INFO] RECORD_DELETED | url=/krystal/api/attendance.php | ip=::1 | user_id=1 | context={"record_id":12,"deleted_by_user":1}
+[2026-05-12 05:01:14] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-12 12:55:50] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=3 | context={"user_id":3,"role":"shift"}
+[2026-05-12 12:56:01] [INFO] RECORD_DELETED | url=/krystal/api/attendance.php | ip=::1 | user_id=3 | context={"record_id":30,"deleted_by_user":3}
+[2026-05-12 12:58:00] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=1 | context={"user_id":1,"role":"shift"}
+[2026-05-12 12:58:38] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=2 | context={"user_id":2,"role":"shift"}
+[2026-05-12 12:59:12] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-12 23:24:32] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal-attendance-system-main/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}

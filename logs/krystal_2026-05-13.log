@@ -1,0 +1,15 @@
+[2026-05-13 00:21:43] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal-attendance-system/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-13 00:42:22] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=2 | context={"user_id":2,"role":"shift"}
+[2026-05-13 00:42:33] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=1 | context={"user_id":1,"role":"shift"}
+[2026-05-13 00:42:42] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=1 | context={"user_id":1,"role":"shift"}
+[2026-05-13 00:42:49] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-13 00:46:20] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-13 00:47:35] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-13 00:49:48] [WARNING] AUTH_FAILURE: Invalid credentials | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"username":"admin@morning"}
+[2026-05-13 00:49:48] [WARNING] API_WARN [400]: Invalid username or password. Please try again. | url=/krystal/api/login.php | ip=::1 | user_id=-
+[2026-05-13 00:50:00] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=1 | context={"user_id":1,"role":"shift"}
+[2026-05-13 00:52:04] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=1 | context={"user_id":1,"role":"shift"}
+[2026-05-13 00:57:26] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-13 00:58:34] [WARNING] API_WARN [401]: Unauthorized | url=/krystal/api/attendance.php | ip=::1 | user_id=-
+[2026-05-13 00:58:40] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-13 00:59:02] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}

@@ -1,0 +1,98 @@
+<?php
+require_once __DIR__ . '/includes/config.php';
+require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/includes/functions.php';
+requireLogin();
+
+$user = getSessionUser();
+if ($user['role'] !== 'admin') {
+    header('Location: add-attendance.php?new=1');
+    exit;
+}
+
+$shiftLabel = getShiftLabel($user['shift']);
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Shift - Krystal Attendance</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="app-header">
+        <div class="container header-content">
+            <a href="dashboard.php" class="brand">
+                <img src="assets/images/krystal-logo.png" alt="Krystal Logo" class="brand-logo">
+                <span class="brand-text">KRYSTAL ATTENDANCE</span>
+            </a>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <span class="shift-badge"><?php echo esc($shiftLabel); ?></span>
+                <a href="logout.php" class="btn btn-outline btn-sm" title="Logout">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div style="max-width: 800px; margin: 0 auto;">
+            <div style="margin-bottom: 2rem; text-align: center;">
+                <h2 style="color: var(--text-main); margin-bottom: 0.5rem;">Select Attendance Shift</h2>
+                <p style="color: var(--text-muted);">Please choose the shift for which you want to add attendance.</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem;">
+                <!-- Morning Shift -->
+                <a href="add-attendance.php?new=1&shift=morning" class="card shift-card" style="text-decoration: none; display: block; transition: transform 0.2s, box-shadow 0.2s; border: 2px solid transparent;">
+                    <div style="padding: 2rem; text-align: center;">
+                        <div style="width: 64px; height: 64px; background: #fff7ed; color: #f97316; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 1.5rem;">
+                            <i class="fa-solid fa-sun"></i>
+                        </div>
+                        <h3 style="color: var(--text-main); margin-bottom: 0.5rem;">Morning Shift</h3>
+                        <p style="color: var(--text-muted); font-size: 0.875rem;">Create attendance records for the morning session.</p>
+                    </div>
+                </a>
+
+                <!-- Afternoon Shift -->
+                <a href="add-attendance.php?new=1&shift=afternoon" class="card shift-card" style="text-decoration: none; display: block; transition: transform 0.2s, box-shadow 0.2s; border: 2px solid transparent;">
+                    <div style="padding: 2rem; text-align: center;">
+                        <div style="width: 64px; height: 64px; background: #ecfdf5; color: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 1.5rem;">
+                            <i class="fa-solid fa-cloud-sun"></i>
+                        </div>
+                        <h3 style="color: var(--text-main); margin-bottom: 0.5rem;">Afternoon Shift</h3>
+                        <p style="color: var(--text-muted); font-size: 0.875rem;">Create attendance records for the afternoon session.</p>
+                    </div>
+                </a>
+
+                <!-- Night Shift -->
+                <a href="add-attendance.php?new=1&shift=night" class="card shift-card" style="text-decoration: none; display: block; transition: transform 0.2s, box-shadow 0.2s; border: 2px solid transparent;">
+                    <div style="padding: 2rem; text-align: center;">
+                        <div style="width: 64px; height: 64px; background: #eff6ff; color: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 1.5rem;">
+                            <i class="fa-solid fa-moon"></i>
+                        </div>
+                        <h3 style="color: var(--text-main); margin-bottom: 0.5rem;">Night Shift</h3>
+                        <p style="color: var(--text-muted); font-size: 0.875rem;">Create attendance records for the night session.</p>
+                    </div>
+                </a>
+            </div>
+
+            <div style="margin-top: 2rem; text-align: center;">
+                <a href="dashboard.php" style="color: var(--text-muted); text-decoration: none; font-size: 0.875rem;">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <style>
+        .shift-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-color) !important;
+        }
+    </style>
+</body>
+</html>
