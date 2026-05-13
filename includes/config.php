@@ -49,6 +49,10 @@ if (!defined('DB_USER'))    define('DB_USER',    'root');
 if (!defined('DB_PASS'))    define('DB_PASS',    'hello brother'); // Never logged
 if (!defined('DB_CHARSET')) define('DB_CHARSET', 'utf8mb4');
 
+// ---- Login rate-limit settings (Phase 3B-2, override in config.local.php) ----
+if (!defined('MAX_LOGIN_ATTEMPTS'))   define('MAX_LOGIN_ATTEMPTS',   5);    // Max failed attempts per IP
+if (!defined('LOGIN_WINDOW_SECONDS')) define('LOGIN_WINDOW_SECONDS', 900);  // Time window in seconds (15 min)
+
 /**
  * Get a shared PDO connection.
  * On failure: logs the error internally, returns safe JSON error, exits.

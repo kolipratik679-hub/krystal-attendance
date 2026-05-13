@@ -186,3 +186,111 @@ function requireCsrf()
         exit;
     }
 }
+
+/* ---- Login Rate Limiting (Phase 3B-2) ---- */
+
+/**
+ * Check if the given IP is rate-limited for login attempts.
+ *
+ * FAIL-SAFE: If the login_attempts table does not exist or the query fails,
+ * this function returns ['allowed' => true] — login proceeds normally.
+ * Rate limiting NEVER blocks legitimate users due to its own internal errors.
+ *
+ * Side-effect: Cleans up expired records (older than LOGIN_WINDOW_SECONDS)
+ * to prevent table bloat without requiring a cron job.
+ *
+ * @param string $ip  Client IP address
+ * @return array  ['allowed' => bool, 'remaining' => int (seconds until retry, 0 if allowed)]
+ */
+function checkLoginRateLimit($ip)
+{
+    try {
+        $db = getDB();
+        $windowSeconds = defined('LOGIN_WINDOW_SECONDS') ? LOGIN_WINDOW_SECONDS : 900;
+        $maxAttempts   = defined('MAX_LOGIN_ATTEMPTS')   ? MAX_LOGIN_ATTEMPTS   : 5;
+
+        // Cleanup: delete expired records (older than 2x window to be safe)
+        // This is lightweight and prevents the table from growing indefinitely.
+        $cleanup = $db->prepare(
+            'DELETE FROM login_attempts WHERE attempted_at < DATE_SUB(NOW(), INTERVAL ? SECOND)'
+        );
+        $cleanup->execute([$windowSeconds * 2]);
+
+        // Count recent failed attempts from this IP
+        $stmt = $db->prepare(
+            'SELECT COUNT(*) AS cnt, MIN(attempted_at) AS oldest
+             FROM login_attempts
+             WHERE ip_address = ? AND attempted_at > DATE_SUB(NOW(), INTERVAL ? SECOND)'
+        );
+        $stmt->execute([$ip, $windowSeconds]);
+        $row = $stmt->fetch();
+
+        $count = (int)($row['cnt'] ?? 0);
+
+        if ($count >= $maxAttempts) {
+            // Calculate remaining cooldown from the oldest attempt in the window
+            $oldestTime = strtotime($row['oldest']);
+            $remaining  = max(0, ($oldestTime + $windowSeconds) - time());
+            return ['allowed' => false, 'remaining' => $remaining];
+        }
+
+        return ['allowed' => true, 'remaining' => 0];
+
+    } catch (Throwable $e) {
+        // FAIL-SAFE: if table doesn't exist or query fails, allow login
+        if (function_exists('logWarning')) {
+            logWarning('RATE_LIMIT_CHECK_FAILED: ' . $e->getMessage());
+        }
+        return ['allowed' => true, 'remaining' => 0];
+    }
+}
+
+/**
+ * Record a failed login attempt for rate-limiting purposes.
+ *
+ * FAIL-SAFE: If the insert fails, it is silently ignored.
+ * This function NEVER blocks or crashes the login flow.
+ *
+ * @param string $ip        Client IP address
+ * @param string $username  Attempted username (truncated, never the password)
+ */
+function recordFailedLogin($ip, $username = '')
+{
+    try {
+        $db = getDB();
+        $stmt = $db->prepare(
+            'INSERT INTO login_attempts (ip_address, attempted_username) VALUES (?, ?)'
+        );
+        $stmt->execute([
+            mb_substr($ip, 0, 45),
+            mb_substr($username, 0, 100)
+        ]);
+    } catch (Throwable $e) {
+        // FAIL-SAFE: silently ignore — rate limiting is best-effort
+        if (function_exists('logWarning')) {
+            logWarning('RATE_LIMIT_RECORD_FAILED: ' . $e->getMessage());
+        }
+    }
+}
+
+/**
+ * Clear all login attempt records for an IP after a successful login.
+ *
+ * FAIL-SAFE: If the delete fails, it is silently ignored.
+ * The user is already authenticated — we must not interfere.
+ *
+ * @param string $ip  Client IP address
+ */
+function clearLoginAttempts($ip)
+{
+    try {
+        $db = getDB();
+        $stmt = $db->prepare('DELETE FROM login_attempts WHERE ip_address = ?');
+        $stmt->execute([$ip]);
+    } catch (Throwable $e) {
+        // FAIL-SAFE: silently ignore
+        if (function_exists('logWarning')) {
+            logWarning('RATE_LIMIT_CLEAR_FAILED: ' . $e->getMessage());
+        }
+    }
+}
