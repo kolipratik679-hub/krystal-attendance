@@ -4,22 +4,27 @@ require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/functions.php';
 requireLogin();
 $user = getSessionUser();
-$shiftLabel = getShiftLabel($user['shift']);
 
 // Check if editing existing record
 $editId = isset($_GET['edit']) ? (int)$_GET['edit'] : 0;
 $editData = null;
 $activeShift = $user['shift']; // Default to user's shift
+$activeLocation = $user['location']; // Default to user's location
 
 if ($user['role'] === 'admin') {
-    // For admin, allow shift override from URL
+    // For admin, allow shift + location override from URL
     $selectedShift = isset($_GET['shift']) ? $_GET['shift'] : '';
     if (in_array($selectedShift, ['morning', 'afternoon', 'night'])) {
         $activeShift = $selectedShift;
-        // Audit: log shift selection when admin starts a new session
+    }
+    $selectedLocation = isset($_GET['location']) ? $_GET['location'] : '';
+    if (in_array($selectedLocation, ['landside', 'asset', 'cargo'])) {
+        $activeLocation = $selectedLocation;
+        // Audit: log shift+location selection when admin starts a new session
         if (isset($_GET['new']) && $_GET['new'] === '1') {
             auditLog('SHIFT_SELECTED', [
-                'selected_shift' => $selectedShift,
+                'selected_shift'    => $activeShift,
+                'selected_location' => $activeLocation,
             ]);
         }
     }
@@ -31,13 +36,15 @@ if ($editId > 0) {
     $stmt->execute([$editId]);
     $rec = $stmt->fetch();
     if ($rec) {
-        if ($user['role'] === 'admin' || $rec['shift'] === $user['shift']) {
-            $activeShift = $rec['shift']; // Use shift from record when editing
+        if ($user['role'] === 'admin' || ($rec['shift'] === $user['shift'] && $rec['location'] === $user['location'])) {
+            $activeShift = $rec['shift'];
+            $activeLocation = $rec['location'];
             $emps = getRecordEmployees($db, $rec['id']);
             $editData = [
                 'id' => (int)$rec['id'],
                 'date' => $rec['attendance_date'],
                 'shift' => $rec['shift'],
+                'location' => $rec['location'],
                 'employees' => array_map(function($e) {
                     return [
                         'name' => $e['employee_name'],
@@ -51,7 +58,11 @@ if ($editId > 0) {
     }
 }
 
-$shiftLabel = getShiftLabel($activeShift);
+if ($user['role'] === 'admin') {
+    $headerLabel = getLocationLabel($activeLocation) . ' — ' . getShiftLabel($activeShift);
+} else {
+    $headerLabel = getLocationLabel($user['location']) . ' — ' . getShiftLabel($activeShift);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -70,7 +81,7 @@ $shiftLabel = getShiftLabel($activeShift);
                 <span class="brand-text">KRYSTAL ATTENDANCE</span>
             </a>
             <div style="display: flex; align-items: center; gap: 1rem;">
-                <span class="shift-badge"><?php echo esc($shiftLabel); ?></span>
+                <span class="shift-badge"><?php echo esc($headerLabel); ?></span>
                 <a href="logout.php" class="btn btn-outline btn-sm" title="Logout">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 </a>
@@ -179,8 +190,9 @@ $shiftLabel = getShiftLabel($activeShift);
     </main>
 
     <script>
-        var SESSION_USER = <?php echo json_encode(['role' => $user['role'], 'shift' => $user['shift']]); ?>;
+        var SESSION_USER = <?php echo json_encode(['role' => $user['role'], 'shift' => $user['shift'], 'location' => $user['location']]); ?>;
         var ACTIVE_SHIFT = <?php echo json_encode($activeShift); ?>;
+        var ACTIVE_LOCATION = <?php echo json_encode($activeLocation); ?>;
         var EDIT_DATA = <?php echo $editData ? json_encode($editData) : 'null'; ?>;
         var CSRF_TOKEN = <?php echo json_encode(getCsrfToken()); ?>;
     </script>

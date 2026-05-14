@@ -6,11 +6,20 @@ requireLogin();
 $user = getSessionUser();
 $editId = isset($_GET['edit']) ? (int)$_GET['edit'] : 0;
 $shiftParam = isset($_GET['shift']) ? $_GET['shift'] : '';
+$locationParam = isset($_GET['location']) ? $_GET['location'] : '';
 $activeShift = $user['shift'];
+$activeLocation = $user['location'];
 if ($user['role'] === 'admin' && in_array($shiftParam, ['morning', 'afternoon', 'night'])) {
     $activeShift = $shiftParam;
 }
-$shiftLabel = getShiftLabel($activeShift);
+if ($user['role'] === 'admin' && in_array($locationParam, ['landside', 'asset', 'cargo'])) {
+    $activeLocation = $locationParam;
+}
+if ($user['role'] === 'admin') {
+    $headerLabel = getLocationLabel($activeLocation) . ' — ' . getShiftLabel($activeShift);
+} else {
+    $headerLabel = getLocationLabel($user['location']) . ' — ' . getShiftLabel($activeShift);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -29,7 +38,7 @@ $shiftLabel = getShiftLabel($activeShift);
                 <span class="brand-text">KRYSTAL ATTENDANCE</span>
             </div>
             <div style="display: flex; align-items: center; gap: 1rem;">
-                <span class="shift-badge"><?php echo esc($shiftLabel); ?></span>
+                <span class="shift-badge"><?php echo esc($headerLabel); ?></span>
                 <span class="badge" style="background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main);"></span>
             </div>
         </div>
@@ -39,20 +48,19 @@ $shiftLabel = getShiftLabel($activeShift);
         <div class="action-bar print-hide">
             <div class="action-bar-left">
                 <?php
-                    // IMPORTANT: Do NOT use ?new=1 for new-session back URL.
-                    // ?new=1 clears previewData cache in initAddAttendance() —
-                    // that flag is reserved for truly fresh sessions from select-shift.php.
+                    // Build back URL preserving shift + location params
                     if ($editId) {
                         $backUrl = 'add-attendance.php?edit=' . $editId;
-                        if ($user['role'] === 'admin' && $shiftParam) {
-                            $backUrl .= '&shift=' . $shiftParam;
+                        if ($user['role'] === 'admin') {
+                            if ($shiftParam) $backUrl .= '&shift=' . $shiftParam;
+                            if ($locationParam) $backUrl .= '&location=' . $locationParam;
                         }
                     } else {
-                        // New session: pass shift for admin (PHP reads it), but NO ?new=1
                         $backUrl = 'add-attendance.php';
-                        if ($user['role'] === 'admin' && $shiftParam) {
-                            $backUrl .= '?shift=' . $shiftParam;
-                        }
+                        $qsParts = [];
+                        if ($user['role'] === 'admin' && $shiftParam) $qsParts[] = 'shift=' . $shiftParam;
+                        if ($user['role'] === 'admin' && $locationParam) $qsParts[] = 'location=' . $locationParam;
+                        if ($qsParts) $backUrl .= '?' . implode('&', $qsParts);
                     }
                 ?>
                 <a href="<?php echo $backUrl; ?>" class="btn btn-outline">

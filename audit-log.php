@@ -30,7 +30,7 @@ $offset       = ($page - 1) * $perPage;
 // Validate date filter
 if ($filterDate && !validateDate($filterDate)) { $filterDate = ''; }
 // Validate shift filter
-if ($filterShift && !in_array($filterShift, ['morning', 'afternoon', 'night', 'all'], true)) { $filterShift = ''; }
+if ($filterShift && !in_array($filterShift, ['morning', 'afternoon', 'night', 'all', 'landside', 'asset', 'cargo'], true)) { $filterShift = ''; }
 
 // --- Query audit logs ---
 $db = getDB();
@@ -100,6 +100,7 @@ function actionLabel($type) {
         'ATTENDANCE_EDIT'   => ['Edit Attendance',   'badge-warning'],
         'ATTENDANCE_DELETE' => ['Delete Attendance', 'badge-danger'],
         'SHIFT_SELECTED'    => ['Shift Selected',    'badge-primary'],
+        'LOGIN_RATE_LIMITED' => ['Rate Limited',      'badge-warning'],
     ];
     if (isset($map[$type])) return $map[$type];
     return [htmlspecialchars($type, ENT_QUOTES, 'UTF-8'), 'badge-secondary'];

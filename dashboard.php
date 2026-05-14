@@ -4,7 +4,11 @@ require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/functions.php';
 requireLogin();
 $user = getSessionUser();
-$shiftLabel = getShiftLabel($user['shift']);
+if ($user['role'] === 'admin') {
+    $headerLabel = 'Main Admin';
+} else {
+    $headerLabel = getLocationLabel($user['location']) . ' — ' . getShiftLabel($user['shift']);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -23,7 +27,7 @@ $shiftLabel = getShiftLabel($user['shift']);
                 <span class="brand-text">KRYSTAL ATTENDANCE</span>
             </a>
             <div style="display: flex; align-items: center; gap: 1rem;">
-                <span class="shift-badge"><?php echo esc($shiftLabel); ?></span>
+                <span class="shift-badge"><?php echo esc($headerLabel); ?></span>
                 <?php if ($user['role'] === 'admin'): ?>
                 <a href="audit-log.php" class="btn btn-outline btn-sm" title="Audit Log">
                     <i class="fa-solid fa-shield-halved"></i>
@@ -44,6 +48,12 @@ $shiftLabel = getShiftLabel($user['shift']);
                     <input type="date" id="date-filter" class="form-control" style="padding-left: 2.5rem; width: 200px;">
                 </div>
                 <?php if ($user['role'] === 'admin'): ?>
+                <select id="location-filter" class="form-control" style="width: 180px;">
+                    <option value="">All Locations</option>
+                    <option value="landside">Landside</option>
+                    <option value="asset">Asset</option>
+                    <option value="cargo">Cargo</option>
+                </select>
                 <select id="shift-filter" class="form-control" style="width: 180px;">
                     <option value="">All Shifts</option>
                     <option value="morning">Morning Shift</option>
@@ -79,7 +89,7 @@ $shiftLabel = getShiftLabel($user['shift']);
     </main>
 
     <script>
-        var SESSION_USER = <?php echo json_encode(['role' => $user['role'], 'shift' => $user['shift']]); ?>;
+        var SESSION_USER = <?php echo json_encode(['role' => $user['role'], 'shift' => $user['shift'], 'location' => $user['location']]); ?>;
         var CSRF_TOKEN = <?php echo json_encode(getCsrfToken()); ?>;
     </script>
     <script src="js/app.js"></script>

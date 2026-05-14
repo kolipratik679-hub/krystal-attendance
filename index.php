@@ -38,7 +38,7 @@ if (isLoggedIn()) {
                     <div style="position: relative;">
                         <i class="fa-regular fa-user"
                             style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
-                        <input type="text" id="username" class="form-control" placeholder="admin@morning" required
+                        <input type="text" id="username" class="form-control" placeholder="landside.morning" required
                             style="padding-left: 2.5rem;">
                     </div>
                 </div>

@@ -81,6 +81,14 @@ function getShiftLabel(shift) {
     return shift;
 }
 
+function getLocationLabel(location) {
+    if (location === 'landside') return 'Landside';
+    if (location === 'asset') return 'Asset';
+    if (location === 'cargo') return 'Cargo';
+    if (location === 'all') return 'All Locations';
+    return location;
+}
+
 /* ---- CSRF-aware API call ---- */
 function apiCall(url, method, body) {
     var headers = { 'Content-Type': 'application/json' };
@@ -116,6 +124,7 @@ function apiCall(url, method, body) {
 var VALID_POSTS = ['incharge', 'supervisor', 'bouncer', 'guard', 'driver'];
 var VALID_STATUSES = ['present', 'absent', 'halfday', 'leave', 'weekoff'];
 var VALID_SHIFTS = ['morning', 'afternoon', 'night'];
+var VALID_LOCATIONS = ['landside', 'asset', 'cargo'];
 var MAX_NAME_LENGTH = 150;
 var MAX_ID_LENGTH = 50;
 
@@ -162,12 +171,14 @@ function initDashboard() {
     var tbody = document.getElementById('dashboard-tbody');
     var dateFilter = document.getElementById('date-filter');
     var shiftFilter = document.getElementById('shift-filter');
-    var user = (typeof SESSION_USER !== 'undefined') ? SESSION_USER : { role: 'shift', shift: 'morning' };
+    var locationFilter = document.getElementById('location-filter');
+    var user = (typeof SESSION_USER !== 'undefined') ? SESSION_USER : { role: 'shift', shift: 'morning', location: 'landside' };
 
     function loadRecords() {
         var params = [];
         if (dateFilter && dateFilter.value) params.push('date=' + dateFilter.value);
         if (shiftFilter && shiftFilter.value) params.push('shift=' + shiftFilter.value);
+        if (locationFilter && locationFilter.value) params.push('location=' + locationFilter.value);
         var qs = params.length > 0 ? '?' + params.join('&') : '';
 
         fetch('api/attendance.php' + qs)
@@ -195,9 +206,10 @@ function initDashboard() {
         }
         records.forEach(function(rec) {
             var tr = document.createElement('tr');
+            var locLabel = rec.location ? getLocationLabel(rec.location) : '';
             tr.innerHTML =
                 '<td><strong>' + formatDate(rec.date) + '</strong>' +
-                '<div style="font-size:0.85rem;color:var(--text-muted);"><i class="fa-solid fa-users"></i> ' + rec.employees.length + ' Staff &middot; ' + getShiftLabel(rec.shift) + '</div></td>' +
+                '<div style="font-size:0.85rem;color:var(--text-muted);"><i class="fa-solid fa-users"></i> ' + rec.employees.length + ' Staff &middot; ' + locLabel + ' &middot; ' + getShiftLabel(rec.shift) + '</div></td>' +
                 '<td style="text-align:right;"><div class="flex justify-end gap-2">' +
                     '<button class="btn btn-outline btn-icon dash-edit" data-id="' + rec.id + '" title="Edit"><i class="fa-solid fa-pen"></i></button>' +
                     '<button class="btn btn-outline btn-icon dash-csv" data-idx="' + rec.id + '" title="CSV"><i class="fa-solid fa-file-csv"></i></button>' +
@@ -239,6 +251,7 @@ function initDashboard() {
 
     if (dateFilter) { dateFilter.value = ''; dateFilter.addEventListener('change', loadRecords); }
     if (shiftFilter) { shiftFilter.addEventListener('change', loadRecords); }
+    if (locationFilter) { locationFilter.addEventListener('change', loadRecords); }
     loadRecords();
 }
 
@@ -262,13 +275,22 @@ function initAddAttendance() {
     var exportCsvBtn = document.getElementById('export-csv-btn');
     var downloadPdfBtn = document.getElementById('download-pdf-btn');
 
-    var user = (typeof SESSION_USER !== 'undefined') ? SESSION_USER : { role: 'shift', shift: 'morning' };
+    var user = (typeof SESSION_USER !== 'undefined') ? SESSION_USER : { role: 'shift', shift: 'morning', location: 'landside' };
     var activeShift = (typeof ACTIVE_SHIFT !== 'undefined') ? ACTIVE_SHIFT : user.shift;
+    var activeLocation = (typeof ACTIVE_LOCATION !== 'undefined') ? ACTIVE_LOCATION : user.location;
     var editRecord = (typeof EDIT_DATA !== 'undefined') ? EDIT_DATA : null;
+
+    // Location-aware localStorage key to prevent cross-location contamination
+    function getStorageKey(loc, shf) {
+        var l = (loc && loc !== 'all') ? loc : 'landside';
+        var s = (shf && shf !== 'all') ? shf : 'morning';
+        return 'previewData_' + l + '_' + s;
+    }
+    var storageKey = getStorageKey(activeLocation, activeShift);
 
     // Check for "new" flag to reset cache
     if (window.location.search.indexOf('new=1') > -1) {
-        localStorage.removeItem('previewData');
+        localStorage.removeItem(storageKey);
     }
 
     var attendanceData = [];
@@ -280,10 +302,14 @@ function initAddAttendance() {
         attendanceData = editRecord.employees.slice();
         editRecordId = editRecord.id;
         if (dateInput) dateInput.value = editRecord.date;
+        // Use location from the record being edited
+        if (editRecord.location) activeLocation = editRecord.location;
+        // Recalculate storage key after updating activeLocation
+        storageKey = getStorageKey(activeLocation, activeShift);
     }
 
     // Load from persistence if available (Preview -> Back / Edit Attendance)
-    var stored = localStorage.getItem('previewData');
+    var stored = localStorage.getItem(storageKey);
     if (stored) {
         try {
             var p = JSON.parse(stored);
@@ -389,18 +415,31 @@ function initAddAttendance() {
     if (searchInput) searchInput.addEventListener('input', renderTable);
     if (statusFilterSelect) statusFilterSelect.addEventListener('change', renderTable);
 
+    // Helper: build preview/edit URL with shift + location params for admin
+    function buildAdminParams(shift, location, editId) {
+        var params = [];
+        if (editId) params.push('edit=' + editId);
+        if (user.role === 'admin') {
+            params.push('shift=' + shift);
+            params.push('location=' + location);
+        }
+        return params.length > 0 ? '?' + params.join('&') : '';
+    }
+
     // Preview - still uses localStorage for cross-page data passing
     if (previewBtn) {
         previewBtn.addEventListener('click', function() {
             if (attendanceData.length === 0) { alert('No attendance data to preview.'); return; }
             var shift = activeShift === 'all' ? 'morning' : activeShift;
-            localStorage.setItem('previewData', JSON.stringify({
+            var location = activeLocation === 'all' ? 'landside' : activeLocation;
+            localStorage.setItem(getStorageKey(location, shift), JSON.stringify({
                 date: dateInput ? dateInput.value : new Date().toISOString().split('T')[0],
                 shift: shift,
+                location: location,
                 employees: attendanceData,
                 editId: editRecordId
             }));
-            window.location.href = 'preview.php' + (editRecordId ? '?edit=' + editRecordId : '') + (user.role === 'admin' ? (editRecordId ? '&' : '?') + 'shift=' + shift : '');
+            window.location.href = 'preview.php' + buildAdminParams(shift, location, editRecordId);
         });
     }
 
@@ -410,13 +449,16 @@ function initAddAttendance() {
             if (attendanceData.length === 0) { alert('No data to save.'); return; }
             var date = dateInput ? dateInput.value : new Date().toISOString().split('T')[0];
             var shift = activeShift === 'all' ? 'morning' : activeShift;
+            var location = activeLocation === 'all' ? 'landside' : activeLocation;
 
             // Frontend date validation
             if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) { alert('Please select a valid date.'); return; }
             // Frontend shift validation
             if (VALID_SHIFTS.indexOf(shift) === -1) { alert('Invalid shift selected.'); return; }
+            // Frontend location validation
+            if (VALID_LOCATIONS.indexOf(location) === -1) { alert('Invalid location selected.'); return; }
 
-            var payload = { date: date, shift: shift, employees: attendanceData };
+            var payload = { date: date, shift: shift, location: location, employees: attendanceData };
             if (editRecordId > 0) payload.editId = editRecordId;
 
             finalSaveBtn.disabled = true;
@@ -425,7 +467,7 @@ function initAddAttendance() {
             apiCall('api/attendance.php', 'POST', payload)
             .then(function(data) {
                 if (data.success) {
-                    localStorage.removeItem('previewData');
+                    localStorage.removeItem(storageKey);
                     window.location.href = 'dashboard.php';
                 } else {
                     alert(data.error || 'Save failed.');
@@ -453,18 +495,16 @@ function initAddAttendance() {
         downloadPdfBtn.addEventListener('click', function() {
             if (attendanceData.length === 0) { alert('No data to download.'); return; }
             var shift = user.shift === 'all' ? 'morning' : user.shift;
-            localStorage.setItem('previewData', JSON.stringify({
+            var location = activeLocation === 'all' ? 'landside' : activeLocation;
+            localStorage.setItem(getStorageKey(location, shift), JSON.stringify({
                 date: dateInput ? dateInput.value : new Date().toISOString().split('T')[0],
                 shift: shift,
+                location: location,
                 employees: attendanceData,
-                editId: editRecordId  // Required: ensures cache-match works when returning from PDF
+                editId: editRecordId
             }));
-            var url = 'preview.php';
-            var params = [];
-            if (editRecordId) params.push('edit=' + editRecordId);
-            if (user.role === 'admin') params.push('shift=' + shift);
-            if (params.length > 0) url += '?' + params.join('&');
-            
+            var url = 'preview.php' + buildAdminParams(shift, location, editRecordId);
+
             var w = window.open(url, '_blank');
             if (w) { w.addEventListener('load', function() { setTimeout(function() { w.print(); }, 600); }); }
         });
@@ -477,7 +517,25 @@ function initAddAttendance() {
    3. PREVIEW PAGE
    ============================================================ */
 function initPreview() {
-    var dataStr = localStorage.getItem('previewData');
+    // Read from location-aware key (passed via localStorage payload's own location+shift)
+    // Try to find the right key from URL params or fallback to scanning
+    var previewStorageKey = 'previewData';
+    var urlParams = new URLSearchParams(window.location.search);
+    var urlLoc = urlParams.get('location') || '';
+    var urlShift = urlParams.get('shift') || '';
+    if (urlLoc && urlShift) {
+        previewStorageKey = 'previewData_' + urlLoc + '_' + urlShift;
+    } else {
+        // Fallback: try to find any previewData_ key
+        for (var i = 0; i < localStorage.length; i++) {
+            var k = localStorage.key(i);
+            if (k && k.indexOf('previewData_') === 0) {
+                previewStorageKey = k;
+                break;
+            }
+        }
+    }
+    var dataStr = localStorage.getItem(previewStorageKey);
     var payload = null;
     if (dataStr) {
         try {
@@ -486,20 +544,26 @@ function initPreview() {
             payload = null;
         }
     }
-    var employees  = payload ? (payload.employees || []) : [];
-    var previewDate  = payload ? (payload.date  || '') : '';
-    var previewShift = payload ? (payload.shift || '') : '';
+    var employees     = payload ? (payload.employees || []) : [];
+    var previewDate   = payload ? (payload.date  || '') : '';
+    var previewShift  = payload ? (payload.shift || '') : '';
+    var previewLocation = payload ? (payload.location || '') : '';
 
     var dateBadge = document.querySelector('.header-content .badge');
     if (dateBadge && previewDate) dateBadge.textContent = formatDate(previewDate);
 
-    if (previewShift) {
-        document.querySelectorAll('.shift-badge').forEach(function(b) { b.textContent = getShiftLabel(previewShift); });
+    if (previewShift || previewLocation) {
+        var combinedLabel = '';
+        if (previewLocation) combinedLabel += getLocationLabel(previewLocation);
+        if (previewLocation && previewShift) combinedLabel += ' — ';
+        if (previewShift) combinedLabel += getShiftLabel(previewShift);
+        document.querySelectorAll('.shift-badge').forEach(function(b) { b.textContent = combinedLabel; });
     }
 
     var printHeader = document.querySelector('.print-header p');
     if (printHeader && previewDate) {
-        printHeader.textContent = 'Daily Attendance Report - ' + getShiftLabel(previewShift || 'morning') + ' (' + formatDate(previewDate) + ')';
+        var locStr = previewLocation ? getLocationLabel(previewLocation) + ' - ' : '';
+        printHeader.textContent = locStr + 'Daily Attendance Report - ' + getShiftLabel(previewShift || 'morning') + ' (' + formatDate(previewDate) + ')';
     }
 
     var grouped = { incharge: [], supervisor: [], bouncer: [], guard: [], driver: [] };

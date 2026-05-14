@@ -28,18 +28,27 @@ function jsonSuccess($data = []) {
     jsonResponse(array_merge(['success' => true], $data));
 }
 
-// Get records filtered by session shift
-function getFilteredRecords($db, $user, $dateFilter = '', $shiftFilter = '') {
+// Get records filtered by session shift + location
+function getFilteredRecords($db, $user, $dateFilter = '', $shiftFilter = '', $locationFilter = '') {
     $sql = 'SELECT * FROM attendance_records';
     $params = [];
     $conditions = [];
 
     if ($user['role'] !== 'admin') {
+        // CRITICAL: shift + location isolation for non-admin users
         $conditions[] = 'shift = ?';
         $params[] = $user['shift'];
-    } elseif ($shiftFilter) {
-        $conditions[] = 'shift = ?';
-        $params[] = $shiftFilter;
+        $conditions[] = 'location = ?';
+        $params[] = $user['location'];
+    } else {
+        if ($shiftFilter) {
+            $conditions[] = 'shift = ?';
+            $params[] = $shiftFilter;
+        }
+        if ($locationFilter) {
+            $conditions[] = 'location = ?';
+            $params[] = $locationFilter;
+        }
     }
 
     if ($dateFilter) {
@@ -59,7 +68,7 @@ function getFilteredRecords($db, $user, $dateFilter = '', $shiftFilter = '') {
         return $stmt->fetchAll();
     } catch (PDOException $e) {
         logException('DB_QUERY_FAILED: getFilteredRecords', $e);
-        throw $e; // Re-throw so callers handle it
+        throw $e;
     }
 }
 
@@ -78,6 +87,7 @@ function getRecordEmployees($db, $recordId) {
 /* ---- Validation Helpers ---- */
 
 define('VALID_SHIFTS', ['morning', 'afternoon', 'night']);
+define('VALID_LOCATIONS', ['landside', 'asset', 'cargo']);
 define('VALID_POSTS', ['incharge', 'supervisor', 'bouncer', 'guard', 'driver']);
 define('VALID_STATUSES', ['present', 'absent', 'halfday', 'leave', 'weekoff']);
 define('MAX_EMPLOYEE_NAME_LENGTH', 150);
@@ -85,6 +95,20 @@ define('MAX_EMPLOYEE_ID_LENGTH', 50);
 
 function validateShift($shift) {
     return in_array($shift, VALID_SHIFTS, true);
+}
+
+function validateLocation($location) {
+    return in_array($location, VALID_LOCATIONS, true);
+}
+
+function getLocationLabel($location) {
+    $labels = [
+        'landside' => 'Landside',
+        'asset'    => 'Asset',
+        'cargo'    => 'Cargo',
+        'all'      => 'All Locations',
+    ];
+    return isset($labels[$location]) ? $labels[$location] : ucfirst($location);
 }
 
 function validatePost($post) {

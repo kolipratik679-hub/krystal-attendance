@@ -1,0 +1,88 @@
+[2026-05-14 04:04:34] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-14 04:04:58] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-14 04:05:29] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-14 04:07:47] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=1 | context={"user_id":1,"role":"shift"}
+[2026-05-14 04:08:50] [ERROR] API_DELETE_ATTENDANCE_FAILED | url=/krystal/api/attendance.php | ip=::1 | user_id=1 | context={"record_id":35,"exception_class":"PDOException","exception_message":"SQLSTATE[HY000]: General error: 1205 Lock wait timeout exceeded; try restarting transaction","exception_file":"C:\\xampp\\htdocs\\krystal\\api\\attendance.php","exception_line":245}
+[2026-05-14 04:08:50] [ERROR] API_ERROR [500]: Failed to delete record. Please try again. | url=/krystal/api/attendance.php | ip=::1 | user_id=1
+[2026-05-14 04:09:39] [ERROR] API_DELETE_ATTENDANCE_FAILED | url=/krystal/api/attendance.php | ip=::1 | user_id=4 | context={"record_id":36,"exception_class":"PDOException","exception_message":"SQLSTATE[HY000]: General error: 1205 Lock wait timeout exceeded; try restarting transaction","exception_file":"C:\\xampp\\htdocs\\krystal\\api\\attendance.php","exception_line":245}
+[2026-05-14 04:09:39] [ERROR] API_ERROR [500]: Failed to delete record. Please try again. | url=/krystal/api/attendance.php | ip=::1 | user_id=4
+[2026-05-14 04:09:41] [ERROR] API_DELETE_ATTENDANCE_FAILED | url=/krystal/api/attendance.php | ip=::1 | user_id=1 | context={"record_id":35,"exception_class":"PDOException","exception_message":"SQLSTATE[HY000]: General error: 1205 Lock wait timeout exceeded; try restarting transaction","exception_file":"C:\\xampp\\htdocs\\krystal\\api\\attendance.php","exception_line":245}
+[2026-05-14 04:09:41] [ERROR] API_ERROR [500]: Failed to delete record. Please try again. | url=/krystal/api/attendance.php | ip=::1 | user_id=1
+[2026-05-14 04:27:07] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-14 05:46:26] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=5 | context={"user_id":5,"role":"shift"}
+[2026-05-14 05:48:05] [WARNING] AUTH_FAILURE: Invalid credentials | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"username":"admin.krystal"}
+[2026-05-14 05:48:05] [WARNING] API_WARN [400]: Invalid username or password. Please try again. | url=/krystal/api/login.php | ip=::1 | user_id=-
+[2026-05-14 05:48:28] [WARNING] AUTH_FAILURE: Invalid credentials | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"username":"admin.krystal"}
+[2026-05-14 05:48:28] [WARNING] API_WARN [400]: Invalid username or password. Please try again. | url=/krystal/api/login.php | ip=::1 | user_id=-
+[2026-05-14 05:48:50] [WARNING] AUTH_FAILURE: Invalid credentials | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"username":"admin.krystal"}
+[2026-05-14 05:48:50] [WARNING] API_WARN [400]: Invalid username or password. Please try again. | url=/krystal/api/login.php | ip=::1 | user_id=-
+[2026-05-14 05:49:10] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=5 | context={"user_id":5,"role":"shift"}
+[2026-05-14 05:49:46] [WARNING] AUTH_FAILURE: Invalid credentials | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"username":"admin.krystal"}
+[2026-05-14 05:49:46] [WARNING] API_WARN [400]: Invalid username or password. Please try again. | url=/krystal/api/login.php | ip=::1 | user_id=-
+[2026-05-14 05:52:56] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-14 05:53:31] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=5 | context={"user_id":5,"role":"shift"}
+[2026-05-14 07:48:19] [WARNING] AUTH_FAILURE: Invalid credentials | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"username":"admin@krystal"}
+[2026-05-14 07:48:19] [WARNING] API_WARN [400]: Invalid username or password. Please try again. | url=/krystal/api/login.php | ip=::1 | user_id=-
+[2026-05-14 07:52:02] [WARNING] AUTH_FAILURE: Invalid credentials | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"username":"landside.morning"}
+[2026-05-14 07:52:02] [WARNING] API_WARN [400]: Invalid username or password. Please try again. | url=/krystal/api/login.php | ip=::1 | user_id=-
+[2026-05-14 08:06:01] [WARNING] AUTH_FAILURE: Invalid credentials | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"username":"landside.morning"}
+[2026-05-14 08:06:01] [WARNING] API_WARN [400]: Invalid username or password. Please try again. | url=/krystal/api/login.php | ip=::1 | user_id=-
+[2026-05-14 08:06:17] [WARNING] AUTH_FAILURE: Invalid credentials | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"username":"landside.morninglandside.morning"}
+[2026-05-14 08:06:17] [WARNING] API_WARN [400]: Invalid username or password. Please try again. | url=/krystal/api/login.php | ip=::1 | user_id=-
+[2026-05-14 08:06:40] [WARNING] AUTH_FAILURE: Invalid credentials | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"username":"landside.morning"}
+[2026-05-14 08:06:40] [WARNING] API_WARN [400]: Invalid username or password. Please try again. | url=/krystal/api/login.php | ip=::1 | user_id=-
+[2026-05-14 08:07:05] [WARNING] AUTH_FAILURE: Invalid credentials | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"username":"landside.morning"}
+[2026-05-14 08:07:05] [WARNING] API_WARN [400]: Invalid username or password. Please try again. | url=/krystal/api/login.php | ip=::1 | user_id=-
+[2026-05-14 08:07:17] [WARNING] AUTH_FAILURE: Invalid credentials | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"username":"admin.krystal"}
+[2026-05-14 08:07:17] [WARNING] API_WARN [400]: Invalid username or password. Please try again. | url=/krystal/api/login.php | ip=::1 | user_id=-
+[2026-05-14 08:08:18] [WARNING] API_WARN [429]: Too many login attempts. Please try again in 13 minute(s). | url=/krystal/api/login.php | ip=::1 | user_id=-
+[2026-05-14 08:08:41] [WARNING] API_WARN [429]: Too many login attempts. Please try again in 13 minute(s). | url=/krystal/api/login.php | ip=::1 | user_id=-
+[2026-05-14 08:09:02] [WARNING] API_WARN [405]: Method not allowed. | url=/krystal/api/login.php | ip=::1 | user_id=-
+[2026-05-14 08:11:35] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=5 | context={"user_id":5,"role":"shift"}
+[2026-05-14 08:12:08] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-14 08:43:29] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-14 08:52:14] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=5 | context={"user_id":5,"role":"shift"}
+[2026-05-14 08:54:44] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=8 | context={"user_id":8,"role":"shift"}
+[2026-05-14 08:56:09] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-14 08:57:47] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=11 | context={"user_id":11,"role":"shift"}
+[2026-05-14 08:58:23] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-14 09:06:53] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-14 09:08:34] [WARNING] AUTH_FAILURE: Invalid credentials | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"username":"cargo.morning"}
+[2026-05-14 09:08:34] [WARNING] API_WARN [400]: Invalid username or password. Please try again. | url=/krystal/api/login.php | ip=::1 | user_id=-
+[2026-05-14 09:09:09] [WARNING] AUTH_FAILURE: Invalid credentials | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"username":"cargo.morning"}
+[2026-05-14 09:09:09] [WARNING] API_WARN [400]: Invalid username or password. Please try again. | url=/krystal/api/login.php | ip=::1 | user_id=-
+[2026-05-14 09:09:40] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=11 | context={"user_id":11,"role":"shift"}
+[2026-05-14 09:09:55] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=5 | context={"user_id":5,"role":"shift"}
+[2026-05-14 09:10:06] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=7 | context={"user_id":7,"role":"shift"}
+[2026-05-14 09:10:40] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=7 | context={"user_id":7,"role":"shift"}
+[2026-05-14 09:10:57] [WARNING] AUTH_FAILURE: Invalid credentials | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"username":"admin@krystal"}
+[2026-05-14 09:10:57] [WARNING] API_WARN [400]: Invalid username or password. Please try again. | url=/krystal/api/login.php | ip=::1 | user_id=-
+[2026-05-14 09:11:13] [WARNING] AUTH_FAILURE: Invalid credentials | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"username":"admin@krystal"}
+[2026-05-14 09:11:13] [WARNING] API_WARN [400]: Invalid username or password. Please try again. | url=/krystal/api/login.php | ip=::1 | user_id=-
+[2026-05-14 09:11:21] [WARNING] AUTH_FAILURE: Invalid credentials | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"username":"admin@krystal"}
+[2026-05-14 09:11:21] [WARNING] API_WARN [400]: Invalid username or password. Please try again. | url=/krystal/api/login.php | ip=::1 | user_id=-
+[2026-05-14 09:11:43] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-14 09:13:59] [INFO] RECORD_DELETED | url=/krystal/api/attendance.php | ip=::1 | user_id=4 | context={"record_id":6,"deleted_by_user":4}
+[2026-05-14 09:34:16] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=5 | context={"user_id":5,"role":"shift"}
+[2026-05-14 09:35:28] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-14 09:38:34] [WARNING] AUTH_FAILURE: Invalid credentials | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"username":"admin.krystal"}
+[2026-05-14 09:38:34] [WARNING] API_WARN [400]: Invalid username or password. Please try again. | url=/krystal/api/login.php | ip=::1 | user_id=-
+[2026-05-14 09:39:01] [WARNING] AUTH_FAILURE: Invalid credentials | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"username":"admin.krystal"}
+[2026-05-14 09:39:02] [WARNING] API_WARN [400]: Invalid username or password. Please try again. | url=/krystal/api/login.php | ip=::1 | user_id=-
+[2026-05-14 09:39:14] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=5 | context={"user_id":5,"role":"shift"}
+[2026-05-14 09:40:11] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=6 | context={"user_id":6,"role":"shift"}
+[2026-05-14 09:41:26] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=7 | context={"user_id":7,"role":"shift"}
+[2026-05-14 09:42:25] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=8 | context={"user_id":8,"role":"shift"}
+[2026-05-14 09:43:16] [WARNING] AUTH_FAILURE: Invalid credentials | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"username":"asset.morng"}
+[2026-05-14 09:43:16] [WARNING] API_WARN [400]: Invalid username or password. Please try again. | url=/krystal/api/login.php | ip=::1 | user_id=-
+[2026-05-14 09:43:49] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=9 | context={"user_id":9,"role":"shift"}
+[2026-05-14 09:44:53] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=10 | context={"user_id":10,"role":"shift"}
+[2026-05-14 09:46:32] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=11 | context={"user_id":11,"role":"shift"}
+[2026-05-14 09:47:35] [WARNING] AUTH_FAILURE: Invalid credentials | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"username":"cargo.agternoon"}
+[2026-05-14 09:47:35] [WARNING] API_WARN [400]: Invalid username or password. Please try again. | url=/krystal/api/login.php | ip=::1 | user_id=-
+[2026-05-14 09:47:41] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=12 | context={"user_id":12,"role":"shift"}
+[2026-05-14 09:48:14] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=12 | context={"user_id":12,"role":"shift"}
+[2026-05-14 09:49:37] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=13 | context={"user_id":13,"role":"shift"}
+[2026-05-14 09:50:32] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-14 17:03:58] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=5 | context={"user_id":5,"role":"shift"}
+[2026-05-14 17:04:26] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}

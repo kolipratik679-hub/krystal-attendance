@@ -19,8 +19,9 @@ $method = requireMethod(['GET', 'POST', 'DELETE']);
 
 // --- GET: List records ---
 if ($method === 'GET') {
-    $dateFilter  = isset($_GET['date'])  ? trim($_GET['date'])  : '';
-    $shiftFilter = isset($_GET['shift']) ? trim($_GET['shift']) : '';
+    $dateFilter     = isset($_GET['date'])     ? trim($_GET['date'])     : '';
+    $shiftFilter    = isset($_GET['shift'])    ? trim($_GET['shift'])    : '';
+    $locationFilter = isset($_GET['location']) ? trim($_GET['location']) : '';
 
     // Validate date filter if provided
     if ($dateFilter && !validateDate($dateFilter)) {
@@ -32,8 +33,13 @@ if ($method === 'GET') {
         jsonError('Invalid shift value.');
     }
 
+    // Validate location filter if provided
+    if ($locationFilter && !validateLocation($locationFilter)) {
+        jsonError('Invalid location value.');
+    }
+
     try {
-        $records = getFilteredRecords($db, $user, $dateFilter, $shiftFilter);
+        $records = getFilteredRecords($db, $user, $dateFilter, $shiftFilter, $locationFilter);
         $result  = [];
         foreach ($records as $rec) {
             $employees = getRecordEmployees($db, $rec['id']);
@@ -50,6 +56,7 @@ if ($method === 'GET') {
                 'id'        => (int)$rec['id'],
                 'date'      => $rec['attendance_date'],
                 'shift'     => $rec['shift'],
+                'location'  => $rec['location'],
                 'employees' => $emps
             ];
         }
@@ -72,6 +79,7 @@ if ($method === 'POST') {
 
     $date = isset($input['date']) ? trim($input['date']) : '';
     $shift = isset($input['shift']) ? trim($input['shift']) : '';
+    $location = isset($input['location']) ? trim($input['location']) : '';
     $employees = isset($input['employees']) && is_array($input['employees']) ? $input['employees'] : [];
     $editId = isset($input['editId']) ? (int)$input['editId'] : 0;
 
@@ -85,6 +93,11 @@ if ($method === 'POST') {
         jsonError('Invalid shift. Allowed: morning, afternoon, night.');
     }
 
+    // Validate location
+    if (!validateLocation($location)) {
+        jsonError('Invalid location. Allowed: landside, asset, cargo.');
+    }
+
     // Validate employees array
     if (count($employees) === 0) {
         jsonError('At least one employee is required.');
@@ -93,6 +106,11 @@ if ($method === 'POST') {
     // Validate shift access
     if ($user['role'] !== 'admin' && $shift !== $user['shift']) {
         jsonError('You cannot save records for another shift.', 403);
+    }
+
+    // Validate location access
+    if ($user['role'] !== 'admin' && $location !== $user['location']) {
+        jsonError('You cannot save records for another location.', 403);
     }
 
     // Validate each employee and check for duplicates
@@ -146,21 +164,21 @@ if ($method === 'POST') {
                 $db->rollBack();
                 jsonError('Record not found.', 404);
             }
-            if ($user['role'] !== 'admin' && $existingRec['shift'] !== $user['shift']) {
+            if ($user['role'] !== 'admin' && ($existingRec['shift'] !== $user['shift'] || $existingRec['location'] !== $user['location'])) {
                 $db->rollBack();
                 jsonError('Access denied.', 403);
             }
 
             // Update: delete old employees, update record
-            $stmt = $db->prepare('UPDATE attendance_records SET attendance_date = ?, shift = ? WHERE id = ?');
-            $stmt->execute([$date, $shift, $editId]);
+            $stmt = $db->prepare('UPDATE attendance_records SET attendance_date = ?, shift = ?, location = ? WHERE id = ?');
+            $stmt->execute([$date, $shift, $location, $editId]);
             $stmt = $db->prepare('DELETE FROM attendance_employees WHERE attendance_record_id = ?');
             $stmt->execute([$editId]);
             $recordId = $editId;
         } else {
-            // Check duplicate date+shift
-            $stmt = $db->prepare('SELECT id FROM attendance_records WHERE attendance_date = ? AND shift = ?');
-            $stmt->execute([$date, $shift]);
+            // Check duplicate date+shift+location
+            $stmt = $db->prepare('SELECT id FROM attendance_records WHERE attendance_date = ? AND shift = ? AND location = ?');
+            $stmt->execute([$date, $shift, $location]);
             $existing = $stmt->fetch();
             if ($existing) {
                 // Overwrite existing
@@ -170,8 +188,8 @@ if ($method === 'POST') {
                 $stmt = $db->prepare('UPDATE attendance_records SET created_by = ?, created_at = NOW() WHERE id = ?');
                 $stmt->execute([$user['id'], $recordId]);
             } else {
-                $stmt = $db->prepare('INSERT INTO attendance_records (shift, attendance_date, created_by) VALUES (?, ?, ?)');
-                $stmt->execute([$shift, $date, $user['id']]);
+                $stmt = $db->prepare('INSERT INTO attendance_records (shift, location, attendance_date, created_by) VALUES (?, ?, ?, ?)');
+                $stmt->execute([$shift, $location, $date, $user['id']]);
                 $recordId = $db->lastInsertId();
             }
         }
@@ -191,6 +209,7 @@ if ($method === 'POST') {
             'target_id'   => (int)$recordId,
             'date'        => $date,
             'shift'       => $shift,
+            'location'    => $location,
             'employee_count' => count($validatedEmployees),
         ]);
 
@@ -203,6 +222,7 @@ if ($method === 'POST') {
         logException('API_SAVE_ATTENDANCE_FAILED', $e, [
             'date'    => $date,
             'shift'   => $shift,
+            'location'=> $location,
             'editId'  => $editId,
             'empCount'=> count($validatedEmployees)
         ]);
@@ -235,7 +255,7 @@ if ($method === 'DELETE') {
         jsonError('Record not found.', 404);
     }
 
-    if ($user['role'] !== 'admin' && $rec['shift'] !== $user['shift']) {
+    if ($user['role'] !== 'admin' && ($rec['shift'] !== $user['shift'] || $rec['location'] !== $user['location'])) {
         jsonError('Access denied.', 403);
     }
 
@@ -250,6 +270,7 @@ if ($method === 'DELETE') {
             'target_id'        => (int)$id,
             'record_date'      => $rec['attendance_date'],
             'record_shift'     => $rec['shift'],
+            'record_location'  => $rec['location'],
         ]);
     } catch (Exception $e) {
         logException('API_DELETE_ATTENDANCE_FAILED', $e, ['record_id' => $id]);

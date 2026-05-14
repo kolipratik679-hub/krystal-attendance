@@ -68,7 +68,8 @@ function getSessionUser()
         'id' => $_SESSION['user_id'],
         'username' => $_SESSION['username'],
         'role' => $_SESSION['role'],
-        'shift' => $_SESSION['shift']
+        'shift' => $_SESSION['shift'],
+        'location' => isset($_SESSION['location']) ? $_SESSION['location'] : 'landside'
     ];
 }
 
@@ -87,7 +88,7 @@ function loginUser($username, $password)
 {
     try {
         $db = getDB();
-        $stmt = $db->prepare('SELECT id, username, password, role, shift FROM users WHERE username = ?');
+        $stmt = $db->prepare('SELECT id, username, password, role, shift, location FROM users WHERE username = ?');
         $stmt->execute([$username]);
         $user = $stmt->fetch();
     } catch (PDOException $e) {
@@ -112,6 +113,7 @@ function loginUser($username, $password)
     $_SESSION['username'] = $user['username'];
     $_SESSION['role'] = $user['role'];
     $_SESSION['shift'] = $user['shift'];
+    $_SESSION['location'] = isset($user['location']) ? $user['location'] : 'landside';
     $_SESSION['login_time'] = time();
     $_SESSION['last_activity'] = time();
     // Generate initial CSRF token on login
