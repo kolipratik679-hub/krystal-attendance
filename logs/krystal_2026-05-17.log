@@ -1,0 +1,7 @@
+[2026-05-17 01:16:12] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-17 01:18:32] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=6 | context={"user_id":6,"role":"shift"}
+[2026-05-17 01:19:35] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=7 | context={"user_id":7,"role":"shift"}
+[2026-05-17 01:21:50] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=13 | context={"user_id":13,"role":"shift"}
+[2026-05-17 01:22:47] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-17 02:22:22] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=11 | context={"user_id":11,"role":"shift"}
+[2026-05-17 02:23:31] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}

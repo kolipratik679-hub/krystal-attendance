@@ -1,0 +1,50 @@
+[2026-05-16 02:18:54] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-16 02:55:19] [CRITICAL] FATAL: Cannot redeclare getShiftLabel() (previously declared in C:\xampp\htdocs\krystal\includes\auth.php:76) | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"file":"C:\\xampp\\htdocs\\krystal\\includes\\functions.php","line":211}
+[2026-05-16 02:55:52] [CRITICAL] FATAL: Cannot redeclare getShiftLabel() (previously declared in C:\xampp\htdocs\krystal\includes\auth.php:76) | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"file":"C:\\xampp\\htdocs\\krystal\\includes\\functions.php","line":211}
+[2026-05-16 02:56:03] [CRITICAL] FATAL: Cannot redeclare getShiftLabel() (previously declared in C:\xampp\htdocs\krystal\includes\auth.php:76) | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"file":"C:\\xampp\\htdocs\\krystal\\includes\\functions.php","line":211}
+[2026-05-16 02:56:13] [CRITICAL] FATAL: Cannot redeclare getShiftLabel() (previously declared in C:\xampp\htdocs\krystal\includes\auth.php:76) | url=/krystal/api/employees.php | ip=::1 | user_id=- | context={"file":"C:\\xampp\\htdocs\\krystal\\includes\\functions.php","line":211}
+[2026-05-16 02:56:22] [CRITICAL] FATAL: Cannot redeclare getShiftLabel() (previously declared in C:\xampp\htdocs\krystal\includes\auth.php:76) | url=/krystal/dashboard.php | ip=::1 | user_id=- | context={"file":"C:\\xampp\\htdocs\\krystal\\includes\\functions.php","line":211}
+[2026-05-16 02:57:07] [CRITICAL] FATAL: Cannot redeclare getShiftLabel() (previously declared in C:\xampp\htdocs\krystal\includes\auth.php:76) | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"file":"C:\\xampp\\htdocs\\krystal\\includes\\functions.php","line":211}
+[2026-05-16 02:57:44] [CRITICAL] FATAL: Cannot redeclare getShiftLabel() (previously declared in C:\xampp\htdocs\krystal\includes\auth.php:76) | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"file":"C:\\xampp\\htdocs\\krystal\\includes\\functions.php","line":211}
+[2026-05-16 03:01:04] [CRITICAL] FATAL: Cannot redeclare getShiftLabel() (previously declared in C:\xampp\htdocs\krystal\includes\auth.php:76) | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"file":"C:\\xampp\\htdocs\\krystal\\includes\\functions.php","line":211}
+[2026-05-16 03:01:44] [CRITICAL] FATAL: Cannot redeclare getShiftLabel() (previously declared in C:\xampp\htdocs\krystal\includes\auth.php:76) | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"file":"C:\\xampp\\htdocs\\krystal\\includes\\functions.php","line":211}
+[2026-05-16 03:06:29] [CRITICAL] FATAL: Cannot redeclare getShiftLabel() (previously declared in C:\xampp\htdocs\krystal\includes\auth.php:76) | url=/krystal/employees.php | ip=::1 | user_id=- | context={"file":"C:\\xampp\\htdocs\\krystal\\includes\\functions.php","line":211}
+[2026-05-16 03:06:43] [CRITICAL] FATAL: Cannot redeclare getShiftLabel() (previously declared in C:\xampp\htdocs\krystal\includes\auth.php:76) | url=/krystal/api/login.php?username=admin.krystal&password=Krystal@Admin2026 | ip=::1 | user_id=- | context={"file":"C:\\xampp\\htdocs\\krystal\\includes\\functions.php","line":211}
+[2026-05-16 03:12:30] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-16 03:30:57] [WARNING] AUTH_FAILURE: Invalid credentials | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"username":"root"}
+[2026-05-16 03:30:57] [WARNING] API_WARN [400]: Invalid username or password. Please try again. | url=/krystal/api/login.php | ip=::1 | user_id=-
+[2026-05-16 03:31:03] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-16 03:34:39] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-16 03:36:15] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=5 | context={"user_id":5,"role":"shift"}
+[2026-05-16 03:37:30] [WARNING] API_WARN [400]: Employee #2 (ID: 893299): This employee is not added in company records. | url=/krystal/api/attendance.php | ip=::1 | user_id=5
+[2026-05-16 03:39:44] [WARNING] API_WARN [400]: Employee #3 (ID: 108): This employee is currently inactive. | url=/krystal/api/attendance.php | ip=::1 | user_id=5
+[2026-05-16 03:40:15] [WARNING] API_WARN [400]: Employee #2 (ID: 893299): This employee is not added in company records. | url=/krystal/api/attendance.php | ip=::1 | user_id=5
+[2026-05-16 03:41:44] [WARNING] AUTH_FAILURE: Invalid credentials | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"username":"admin@krystal"}
+[2026-05-16 03:41:44] [WARNING] API_WARN [400]: Invalid username or password. Please try again. | url=/krystal/api/login.php | ip=::1 | user_id=-
+[2026-05-16 03:42:09] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-16 03:44:34] [WARNING] API_WARN [400]: Employee ID 105 is already registered. | url=/krystal/api/employees.php | ip=::1 | user_id=4
+[2026-05-16 03:58:02] [WARNING] API_WARN [400]: Employee ID 108 is already taken by another employee. | url=/krystal/api/employees.php | ip=::1 | user_id=4
+[2026-05-16 03:58:15] [WARNING] API_WARN [400]: Employee ID 108 is already taken by another employee. | url=/krystal/api/employees.php | ip=::1 | user_id=4
+[2026-05-16 04:03:18] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=10 | context={"user_id":10,"role":"shift"}
+[2026-05-16 04:04:22] [WARNING] API_WARN [403]: Access denied. Only admin can manage employees. | url=/krystal/api/employees.php | ip=::1 | user_id=10
+[2026-05-16 04:04:35] [WARNING] API_WARN [403]: Access denied. Only admin can manage employees. | url=/krystal/api/employees.php | ip=::1 | user_id=10
+[2026-05-16 04:05:54] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=10 | context={"user_id":10,"role":"shift"}
+[2026-05-16 04:06:49] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-16 04:25:37] [WARNING] AUTH_FAILURE: Invalid credentials | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"username":"admin@krystal"}
+[2026-05-16 04:25:37] [WARNING] API_WARN [400]: Invalid username or password. Please try again. | url=/krystal/api/login.php | ip=::1 | user_id=-
+[2026-05-16 04:25:45] [WARNING] AUTH_FAILURE: Invalid credentials | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"username":"admin.krystal"}
+[2026-05-16 04:25:45] [WARNING] API_WARN [400]: Invalid username or password. Please try again. | url=/krystal/api/login.php | ip=::1 | user_id=-
+[2026-05-16 04:26:12] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-16 04:28:18] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=5 | context={"user_id":5,"role":"shift"}
+[2026-05-16 04:28:40] [WARNING] AUTH_FAILURE: Invalid credentials | url=/krystal/api/login.php | ip=::1 | user_id=- | context={"username":"landside.afternoon"}
+[2026-05-16 04:28:40] [WARNING] API_WARN [400]: Invalid username or password. Please try again. | url=/krystal/api/login.php | ip=::1 | user_id=-
+[2026-05-16 04:28:54] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=6 | context={"user_id":6,"role":"shift"}
+[2026-05-16 04:29:55] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-16 05:10:54] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-16 05:20:25] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-16 19:45:46] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-16 19:50:38] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=6 | context={"user_id":6,"role":"shift"}
+[2026-05-16 20:11:35] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=5 | context={"user_id":5,"role":"shift"}
+[2026-05-16 20:12:55] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-16 20:17:38] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=4 | context={"user_id":4,"role":"admin"}
+[2026-05-16 20:21:01] [INFO] AUTH_LOGIN_SUCCESS | url=/krystal/api/login.php | ip=::1 | user_id=6 | context={"user_id":6,"role":"shift"}

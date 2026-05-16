@@ -269,6 +269,9 @@ function initAddAttendance() {
     var searchInput = document.getElementById('search-input');
     var statusFilterSelect = document.getElementById('status-filter');
     var dateInput = document.getElementById('attendance-date');
+    var masterValidated = document.getElementById('staff-master-validated');
+    var nameDropdown = document.getElementById('name-dropdown');
+    var idDropdown = document.getElementById('id-dropdown');
 
     var previewBtn = document.getElementById('preview-btn');
     var finalSaveBtn = document.getElementById('final-save-btn');
@@ -296,6 +299,83 @@ function initAddAttendance() {
     var attendanceData = [];
     var editIndex = -1;
     var editRecordId = 0;
+    var acDebounceTimer = null;
+
+    // ---- Autocomplete Engine (Phase 4A) ----
+    function setupAutocomplete(inputEl, dropdownEl, searchField) {
+        inputEl.addEventListener('input', function() {
+            clearTimeout(acDebounceTimer);
+            var val = inputEl.value.trim();
+            if (val.length < 1) {
+                dropdownEl.classList.remove('active');
+                dropdownEl.innerHTML = '';
+                // Reset validation when user clears/changes
+                if (masterValidated) masterValidated.value = '0';
+                return;
+            }
+            // Reset validation flag on manual typing
+            if (masterValidated) masterValidated.value = '0';
+            acDebounceTimer = setTimeout(function() {
+                apiCall('api/employees.php?search=' + encodeURIComponent(val) + '&status=active&limit=10', 'GET')
+                .then(function(data) {
+                    if (!data.success || !data.employees || data.employees.length === 0) {
+                        dropdownEl.innerHTML = '<div class="autocomplete-no-results">This employee is not added in company records.</div>';
+                        dropdownEl.classList.add('active');
+                        return;
+                    }
+                    dropdownEl.innerHTML = '';
+                    data.employees.forEach(function(emp) {
+                        var item = document.createElement('div');
+                        item.className = 'autocomplete-item';
+                        item.innerHTML = '<span class="emp-name">' + escHtmlInline(emp.name) + '</span>' +
+                            '<span class="emp-meta">ID: ' + escHtmlInline(emp.employee_id) + ' · ' + capitalize(emp.post) + '</span>';
+                        item.addEventListener('mousedown', function(e) {
+                            e.preventDefault();
+                            selectEmployee(emp);
+                            dropdownEl.classList.remove('active');
+                        });
+                        dropdownEl.appendChild(item);
+                    });
+                    dropdownEl.classList.add('active');
+                });
+            }, 250);
+        });
+
+        inputEl.addEventListener('blur', function() {
+            setTimeout(function() { dropdownEl.classList.remove('active'); }, 200);
+        });
+
+        inputEl.addEventListener('focus', function() {
+            if (dropdownEl.children.length > 0 && inputEl.value.trim().length >= 1) {
+                dropdownEl.classList.add('active');
+            }
+        });
+    }
+
+    function selectEmployee(emp) {
+        nameInput.value = emp.name;
+        idInput.value = emp.employee_id;
+        postSelect.value = emp.post.toLowerCase();
+        if (masterValidated) masterValidated.value = '1';
+        // Close both dropdowns
+        if (nameDropdown) nameDropdown.classList.remove('active');
+        if (idDropdown) idDropdown.classList.remove('active');
+    }
+
+    function escHtmlInline(str) {
+        var d = document.createElement('span');
+        d.textContent = str;
+        return d.innerHTML;
+    }
+
+    function capitalize(s) {
+        return s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
+    }
+
+    // Wire up both autocomplete fields
+    if (nameDropdown) setupAutocomplete(nameInput, nameDropdown, 'name');
+    if (idDropdown) setupAutocomplete(idInput, idDropdown, 'id');
+    // ---- End Autocomplete ----
 
     // Load edit data from server if editing
     if (editRecord) {
@@ -371,6 +451,13 @@ function initAddAttendance() {
         if (!post || VALID_POSTS.indexOf(post.toLowerCase()) === -1) { alert('Please select a valid post.'); return; }
         if (!status || VALID_STATUSES.indexOf(status.toLowerCase()) === -1) { alert('Please select a valid status.'); return; }
 
+        // Phase 4A: Master validation check
+        if (masterValidated && masterValidated.value !== '1') {
+            alert('This employee is not added in company records.\n\nPlease select an employee from the autocomplete suggestions.');
+            nameInput.focus();
+            return;
+        }
+
         var isDuplicate = attendanceData.some(function(staff, index) {
             return staff.id === id && index !== editIndex;
         });
@@ -388,6 +475,7 @@ function initAddAttendance() {
             attendanceData.push({ name: name, id: id, post: post, status: status });
         }
         nameInput.value = ''; idInput.value = ''; postSelect.value = ''; statusSelect.value = 'present';
+        if (masterValidated) masterValidated.value = '0';
         renderTable();
     });
 
@@ -397,6 +485,7 @@ function initAddAttendance() {
         nameInput.value = s.name; idInput.value = s.id;
         postSelect.value = s.post.toLowerCase(); statusSelect.value = s.status || 'present';
         editIndex = index;
+        if (masterValidated) masterValidated.value = '1';  // Trust existing data
         submitBtn.innerHTML = '<i class="fa-solid fa-check"></i> Update';
         nameInput.focus();
     }
@@ -407,6 +496,7 @@ function initAddAttendance() {
         if (editIndex === index) {
             editIndex = -1; nameInput.value = ''; idInput.value = '';
             postSelect.value = ''; statusSelect.value = 'present';
+            if (masterValidated) masterValidated.value = '0';
             submitBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add';
         } else if (editIndex > index) { editIndex--; }
         renderTable();

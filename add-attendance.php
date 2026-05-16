@@ -117,13 +117,20 @@ if ($user['role'] === 'admin') {
                 <h3>Add Staff Member</h3>
             </header>
             <form action="#" method="POST" class="form-grid" id="staff-form">
+                <input type="hidden" id="staff-master-validated" value="0">
                 <div class="form-group" style="margin-bottom: 0;">
                     <label for="staff-name" class="form-label">Full Name</label>
-                    <input type="text" id="staff-name" class="form-control" placeholder="John Doe" required>
+                    <div class="autocomplete-wrapper">
+                        <input type="text" id="staff-name" class="form-control" placeholder="Type employee name..." required autocomplete="off">
+                        <div class="autocomplete-dropdown" id="name-dropdown"></div>
+                    </div>
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
                     <label for="staff-id" class="form-label">Staff ID</label>
-                    <input type="number" id="staff-id" class="form-control" placeholder="001" required>
+                    <div class="autocomplete-wrapper">
+                        <input type="text" id="staff-id" class="form-control" placeholder="Type employee ID..." required autocomplete="off">
+                        <div class="autocomplete-dropdown" id="id-dropdown"></div>
+                    </div>
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
                     <label for="staff-post" class="form-label">Post</label>

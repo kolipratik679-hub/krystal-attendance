@@ -29,6 +29,12 @@ if ($user['role'] === 'admin') {
             <div style="display: flex; align-items: center; gap: 1rem;">
                 <span class="shift-badge"><?php echo esc($headerLabel); ?></span>
                 <?php if ($user['role'] === 'admin'): ?>
+                <a href="reports.php" class="btn btn-outline btn-sm" title="Advanced Reports">
+                    <i class="fa-solid fa-chart-line"></i>
+                </a>
+                <a href="employees.php" class="btn btn-outline btn-sm" title="Employee Master">
+                    <i class="fa-solid fa-users-gear"></i>
+                </a>
                 <a href="audit-log.php" class="btn btn-outline btn-sm" title="Audit Log">
                     <i class="fa-solid fa-shield-halved"></i>
                 </a>

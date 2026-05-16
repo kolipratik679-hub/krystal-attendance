@@ -144,10 +144,17 @@ if ($method === 'POST') {
         }
         $seenIds[$eid] = true;
 
+        // Phase 4A: Master employee validation
+        $reason = '';
+        $masterEmp = validateMasterEmployee($db, $eid, $reason);
+        if (!$masterEmp) {
+            jsonError("Employee #" . ($idx + 1) . " (ID: $eid): $reason");
+        }
+
         $validatedEmployees[] = [
-            'name' => $name,
+            'name' => $masterEmp['name'],  // Use canonical name from master
             'id' => $eid,
-            'post' => $post,
+            'post' => $masterEmp['post'],  // Use canonical post from master
             'status' => $status
         ];
     }

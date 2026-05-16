@@ -290,7 +290,7 @@ header.app-header .btn-outline:hover {
     background-color: var(--bg-card);
     border-radius: var(--radius);
     box-shadow: var(--shadow-sm);
-    overflow: hidden;
+    overflow: visible;
     margin-bottom: 1.5rem;
 }
 
@@ -462,6 +462,69 @@ tbody tr:last-child td {
 
 .w-full {
     width: 100%;
+}
+
+/* Autocomplete (Phase 4A) */
+.autocomplete-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.autocomplete-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    box-shadow: var(--shadow-md);
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.autocomplete-dropdown.active {
+    display: block;
+}
+
+.autocomplete-item {
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.15s ease;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-item:hover,
+.autocomplete-item.highlighted {
+    background-color: #eef4ff;
+}
+
+.autocomplete-item .emp-name {
+    font-weight: 500;
+    color: var(--text-main);
+}
+
+.autocomplete-item .emp-meta {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.autocomplete-no-results {
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    color: var(--danger-color);
+    text-align: center;
 }
 
 /* Print Styles */

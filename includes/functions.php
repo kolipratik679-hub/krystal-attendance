@@ -166,3 +166,37 @@ function requireMethod($allowed) {
     }
     return $method;
 }
+
+/* ---- Employee Master Helpers (Phase 4A) ---- */
+
+/**
+ * Look up an employee by their badge/company employee_id.
+ * Returns the employee row or false if not found.
+ */
+function getEmployeeByBadgeId($db, $badgeId) {
+    try {
+        $stmt = $db->prepare('SELECT * FROM employees WHERE employee_id = ? LIMIT 1');
+        $stmt->execute([trim($badgeId)]);
+        return $stmt->fetch();
+    } catch (PDOException $e) {
+        logException('DB_QUERY_FAILED: getEmployeeByBadgeId', $e, ['badge_id' => $badgeId]);
+        return false;
+    }
+}
+
+/**
+ * Validate that an employee_id exists in the master table and is active.
+ * Returns the employee row on success, or false with a reason string by reference.
+ */
+function validateMasterEmployee($db, $badgeId, &$reason = '') {
+    $emp = getEmployeeByBadgeId($db, $badgeId);
+    if (!$emp) {
+        $reason = 'This employee is not added in company records.';
+        return false;
+    }
+    if ($emp['status'] !== 'active') {
+        $reason = 'This employee is currently inactive.';
+        return false;
+    }
+    return $emp;
+}
