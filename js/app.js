@@ -294,6 +294,9 @@ function initAddAttendance() {
     // Check for "new" flag to reset cache
     if (window.location.search.indexOf('new=1') > -1) {
         localStorage.removeItem(storageKey);
+        var url = new URL(window.location.href);
+        url.searchParams.delete('new');
+        window.history.replaceState({}, document.title, url.toString());
     }
 
     var attendanceData = [];
@@ -404,6 +407,22 @@ function initAddAttendance() {
         }
     }
 
+    function persistAttendanceData() {
+        var shift = activeShift === 'all' ? 'morning' : activeShift;
+        var location = activeLocation === 'all' ? 'landside' : activeLocation;
+        localStorage.setItem(getStorageKey(location, shift), JSON.stringify({
+            date: dateInput ? dateInput.value : new Date().toISOString().split('T')[0],
+            shift: shift,
+            location: location,
+            employees: attendanceData,
+            editId: editRecordId
+        }));
+    }
+
+    if (dateInput) {
+        dateInput.addEventListener('change', persistAttendanceData);
+    }
+
     function renderTable() {
         var searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
         var statusFilter = statusFilterSelect ? statusFilterSelect.value : '';
@@ -476,6 +495,7 @@ function initAddAttendance() {
         }
         nameInput.value = ''; idInput.value = ''; postSelect.value = ''; statusSelect.value = 'present';
         if (masterValidated) masterValidated.value = '0';
+        persistAttendanceData();
         renderTable();
     });
 
@@ -499,6 +519,7 @@ function initAddAttendance() {
             if (masterValidated) masterValidated.value = '0';
             submitBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add';
         } else if (editIndex > index) { editIndex--; }
+        persistAttendanceData();
         renderTable();
     }
 
@@ -516,19 +537,12 @@ function initAddAttendance() {
         return params.length > 0 ? '?' + params.join('&') : '';
     }
 
-    // Preview - still uses localStorage for cross-page data passing
     if (previewBtn) {
         previewBtn.addEventListener('click', function() {
             if (attendanceData.length === 0) { alert('No attendance data to preview.'); return; }
             var shift = activeShift === 'all' ? 'morning' : activeShift;
             var location = activeLocation === 'all' ? 'landside' : activeLocation;
-            localStorage.setItem(getStorageKey(location, shift), JSON.stringify({
-                date: dateInput ? dateInput.value : new Date().toISOString().split('T')[0],
-                shift: shift,
-                location: location,
-                employees: attendanceData,
-                editId: editRecordId
-            }));
+            persistAttendanceData();
             window.location.href = 'preview.php' + buildAdminParams(shift, location, editRecordId);
         });
     }
@@ -586,13 +600,7 @@ function initAddAttendance() {
             if (attendanceData.length === 0) { alert('No data to download.'); return; }
             var shift = user.shift === 'all' ? 'morning' : user.shift;
             var location = activeLocation === 'all' ? 'landside' : activeLocation;
-            localStorage.setItem(getStorageKey(location, shift), JSON.stringify({
-                date: dateInput ? dateInput.value : new Date().toISOString().split('T')[0],
-                shift: shift,
-                location: location,
-                employees: attendanceData,
-                editId: editRecordId
-            }));
+            persistAttendanceData();
             var url = 'preview.php' + buildAdminParams(shift, location, editRecordId);
 
             var w = window.open(url, '_blank');
