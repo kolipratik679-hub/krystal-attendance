@@ -28,6 +28,7 @@ $empId     = isset($_GET['emp_id'])     ? trim($_GET['emp_id'])     : '';
 $shift     = isset($_GET['shift'])      ? trim($_GET['shift'])      : '';
 $location  = isset($_GET['location'])   ? trim($_GET['location'])   : '';
 $status    = isset($_GET['status'])     ? trim($_GET['status'])     : '';
+$depLoc    = isset($_GET['deployment_location']) ? trim($_GET['deployment_location']) : '';
 $limit     = isset($_GET['limit'])      ? (int)$_GET['limit']       : 1000; // Limit to prevent massive payloads
 
 if ($limit > 5000) $limit = 5000;
@@ -40,7 +41,8 @@ $sql = 'SELECT
             e.employee_id,
             e.employee_name as name,
             e.post,
-            e.status
+            e.status,
+            e.deployment_location
         FROM attendance_employees e
         INNER JOIN attendance_records r ON e.attendance_record_id = r.id
         WHERE 1=1';
@@ -82,6 +84,12 @@ if ($status !== '' && $status !== 'all') {
         $sql .= ' AND e.status = ?';
         $params[] = $status;
     }
+}
+
+// Phase 5A: Deployment location filter
+if ($depLoc !== '' && $depLoc !== 'all') {
+    $sql .= ' AND e.deployment_location = ?';
+    $params[] = $depLoc;
 }
 
 $sql .= ' ORDER BY r.attendance_date DESC, r.shift ASC, e.employee_name ASC LIMIT ' . $limit;

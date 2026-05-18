@@ -6,6 +6,7 @@
 require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/layout.php';
 requireLogin();
 $user = getSessionUser();
 
@@ -22,7 +23,7 @@ if ($user['role'] !== 'admin') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee History & Reports - Krystal Attendance</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=4c1">
     <style>
         .filter-grid {
             display: grid;
@@ -40,31 +41,8 @@ if ($user['role'] !== 'admin') {
     </style>
 </head>
 <body>
-    <header class="app-header">
-        <div class="container header-content">
-            <a href="dashboard.php" class="brand">
-                <img src="assets/images/krystal-logo.png" alt="Krystal Logo" class="brand-logo">
-                <span class="brand-text">KRYSTAL ATTENDANCE</span>
-            </a>
-            <div style="display: flex; align-items: center; gap: 1rem;">
-                <span class="shift-badge">Advanced Reports</span>
-                <a href="dashboard.php" class="btn btn-outline btn-sm" title="Dashboard">
-                    <i class="fa-solid fa-gauge-high"></i>
-                </a>
-                <a href="employees.php" class="btn btn-outline btn-sm" title="Employee Master">
-                    <i class="fa-solid fa-users-gear"></i>
-                </a>
-                <a href="audit-log.php" class="btn btn-outline btn-sm" title="Audit Log">
-                    <i class="fa-solid fa-shield-halved"></i>
-                </a>
-                <a href="logout.php" class="btn btn-outline btn-sm" title="Logout">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                </a>
-            </div>
-        </div>
-    </header>
+    <?php renderLayoutStart($user, 'reports', 'Advanced Reports'); ?>
 
-    <main class="container">
         <!-- Filters Card -->
         <section class="card">
             <header class="card-header">
@@ -88,6 +66,14 @@ if ($user['role'] !== 'admin') {
                         <div class="form-group" style="margin-bottom:0;">
                             <label class="form-label">End Date</label>
                             <input type="date" id="report-end-date" class="form-control">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Dep. Location</label>
+                            <div class="autocomplete-wrapper">
+                                <input type="text" id="report-deploc-search" class="form-control" placeholder="Search Location..." autocomplete="off">
+                                <div class="autocomplete-dropdown" id="report-deploc-dropdown"></div>
+                                <input type="hidden" id="report-deploc-id" value="">
+                            </div>
                         </div>
                         <div class="form-group" style="margin-bottom:0;">
                             <label class="form-label">Location</label>
@@ -161,15 +147,17 @@ if ($user['role'] !== 'admin') {
                             <th>Name</th>
                             <th>Post</th>
                             <th>Status</th>
+                            <th>Dep. Location</th>
                         </tr>
                     </thead>
                     <tbody id="report-tbody">
-                        <tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:2rem;">Set filters and click Search to view history.</td></tr>
+                        <tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:2rem;">Set filters and click Search to view history.</td></tr>
                     </tbody>
                 </table>
             </div>
         </section>
-    </main>
+
+    <?php renderLayoutEnd(); ?>
 
     <script src="js/reports.js"></script>
 </body>

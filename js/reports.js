@@ -23,6 +23,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const tbody = document.getElementById('report-tbody');
     const countBadge = document.getElementById('report-count-badge');
     
+    const deplocSearchInput = document.getElementById('report-deploc-search');
+    const deplocDropdownEl = document.getElementById('report-deploc-dropdown');
+    const deplocIdHidden = document.getElementById('report-deploc-id');
+    
     const exportCsvBtn = document.getElementById('report-export-csv');
     const exportPdfBtn = document.getElementById('report-export-pdf');
 
@@ -92,6 +96,55 @@ document.addEventListener('DOMContentLoaded', function() {
         searchInput.focus();
     });
 
+    // ----- Deployment Location Autocomplete -----
+    let deplocDebounceTimer = null;
+    deplocSearchInput.addEventListener('input', function() {
+        clearTimeout(deplocDebounceTimer);
+        var val = deplocSearchInput.value.trim();
+        if (val.length < 1) {
+            deplocDropdownEl.classList.remove('active');
+            deplocDropdownEl.innerHTML = '';
+            deplocIdHidden.value = '';
+            return;
+        }
+        deplocIdHidden.value = val; // Store typed value as fallback
+        deplocDebounceTimer = setTimeout(function() {
+            fetch('api/deployment-locations.php?search=' + encodeURIComponent(val) + '&limit=10')
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success || !data.locations || data.locations.length === 0) {
+                    deplocDropdownEl.innerHTML = '<div class="autocomplete-no-results">No locations found.</div>';
+                    deplocDropdownEl.classList.add('active');
+                    return;
+                }
+                deplocDropdownEl.innerHTML = '';
+                data.locations.forEach(function(loc) {
+                    var item = document.createElement('div');
+                    item.className = 'autocomplete-item';
+                    item.innerHTML = '<span class="emp-name">' + escHtmlInline(loc.name) + '</span>';
+                    item.addEventListener('mousedown', function(e) {
+                        e.preventDefault();
+                        deplocDropdownEl.classList.remove('active');
+                        deplocSearchInput.value = loc.name;
+                        deplocIdHidden.value = loc.name;
+                    });
+                    deplocDropdownEl.appendChild(item);
+                });
+                deplocDropdownEl.classList.add('active');
+            }).catch(err => console.error(err));
+        }, 250);
+    });
+
+    deplocSearchInput.addEventListener('blur', function() {
+        setTimeout(function() { deplocDropdownEl.classList.remove('active'); }, 200);
+    });
+
+    deplocSearchInput.addEventListener('focus', function() {
+        if (deplocDropdownEl.children.length > 0 && deplocSearchInput.value.trim().length >= 1) {
+            deplocDropdownEl.classList.add('active');
+        }
+    });
+
     clearFiltersBtn.addEventListener('click', function() {
         empClearBtn.click();
         startDateInput.value = '';
@@ -99,7 +152,9 @@ document.addEventListener('DOMContentLoaded', function() {
         locationSelect.value = 'all';
         shiftSelect.value = 'all';
         statusSelect.value = 'all';
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:2rem;">Set filters and click Search to view history.</td></tr>';
+        deplocSearchInput.value = '';
+        deplocIdHidden.value = '';
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:2rem;">Set filters and click Search to view history.</td></tr>';
         countBadge.textContent = '0';
         currentData = [];
     });
@@ -111,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function fetchReports() {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:2rem;"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr>';
         
         let url = new URL(window.location.origin + '/krystal/api/reports.php');
         let params = {
@@ -120,7 +175,8 @@ document.addEventListener('DOMContentLoaded', function() {
             end_date: endDateInput.value,
             location: locationSelect.value,
             shift: shiftSelect.value,
-            status: statusSelect.value
+            status: statusSelect.value,
+            deployment_location: deplocIdHidden.value
         };
         Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
 
@@ -132,19 +188,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 renderTable(currentData);
             } else {
                 alert(data.message || 'Error fetching reports.');
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:red;padding:2rem;">Error fetching data.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:red;padding:2rem;">Error fetching data.</td></tr>';
             }
         })
         .catch(err => {
             console.error(err);
-            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:red;padding:2rem;">Network error.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:red;padding:2rem;">Network error.</td></tr>';
         });
     }
 
     function renderTable(records) {
         countBadge.textContent = records.length;
         if (records.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:2rem;">No records found for the selected filters.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:2rem;">No records found for the selected filters.</td></tr>';
             return;
         }
 
@@ -154,7 +210,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Format status badge
             let statusBadge = '';
-            if (r.status === 'present') statusBadge = '<span class="badge badge-success">Present</span>';
+            if (!r.status || r.status === '') statusBadge = '--';
+            else if (r.status === 'present') statusBadge = '<span class="badge badge-success">Present</span>';
             else if (r.status === 'absent') statusBadge = '<span class="badge badge-danger">Absent</span>';
             else if (r.status === 'halfday') statusBadge = '<span class="badge badge-warning">Half Day</span>';
             else if (r.status === 'leave') statusBadge = '<span class="badge badge-info">Leave</span>';
@@ -169,6 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${escHtmlInline(r.name)}</td>
                 <td>${capitalize(r.post)}</td>
                 <td>${statusBadge}</td>
+                <td>${r.deployment_location ? escHtmlInline(r.deployment_location) : '--'}</td>
             `;
             tbody.appendChild(tr);
         });
@@ -180,7 +238,7 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('No data to export.');
             return;
         }
-        let csv = 'Date,Location,Shift,Emp ID,Name,Post,Status\n';
+        let csv = 'Date,Location,Shift,Emp ID,Name,Post,Status,Dep. Location\n';
         currentData.forEach(r => {
             let row = [
                 r.date,
@@ -189,7 +247,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 r.employee_id,
                 `"${r.name.replace(/"/g, '""')}"`,
                 capitalize(r.post),
-                capitalize(r.status)
+                (!r.status || r.status === '') ? '--' : capitalize(r.status),
+                r.deployment_location ? `"${r.deployment_location.replace(/"/g, '""')}"` : '--'
             ];
             csv += row.join(',') + '\n';
         });
@@ -246,6 +305,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <th>Name</th>
                         <th>Post</th>
                         <th>Status</th>
+                        <th>Dep. Location</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -260,7 +320,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${escHtmlInline(r.employee_id)}</td>
                 <td>${escHtmlInline(r.name)}</td>
                 <td>${capitalize(r.post)}</td>
-                <td>${capitalize(r.status)}</td>
+                <td>${(!r.status || r.status === '') ? '--' : capitalize(r.status)}</td>
+                <td>${r.deployment_location ? escHtmlInline(r.deployment_location) : '--'}</td>
             </tr>`;
         });
         

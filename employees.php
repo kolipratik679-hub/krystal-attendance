@@ -6,6 +6,7 @@
 require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/layout.php';
 requireLogin();
 $user = getSessionUser();
 
@@ -22,34 +23,11 @@ if ($user['role'] !== 'admin') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee Master - Krystal Attendance</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=4c1">
 </head>
 <body>
-    <header class="app-header">
-        <div class="container header-content">
-            <a href="dashboard.php" class="brand">
-                <img src="assets/images/krystal-logo.png" alt="Krystal Logo" class="brand-logo">
-                <span class="brand-text">KRYSTAL ATTENDANCE</span>
-            </a>
-            <div style="display: flex; align-items: center; gap: 1rem;">
-                <span class="shift-badge">Employee Master</span>
-                <a href="reports.php" class="btn btn-outline btn-sm" title="Advanced Reports">
-                    <i class="fa-solid fa-chart-line"></i>
-                </a>
-                <a href="dashboard.php" class="btn btn-outline btn-sm" title="Dashboard">
-                    <i class="fa-solid fa-gauge-high"></i>
-                </a>
-                <a href="audit-log.php" class="btn btn-outline btn-sm" title="Audit Log">
-                    <i class="fa-solid fa-shield-halved"></i>
-                </a>
-                <a href="logout.php" class="btn btn-outline btn-sm" title="Logout">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                </a>
-            </div>
-        </div>
-    </header>
+    <?php renderLayoutStart($user, 'employees', 'Employee Master'); ?>
 
-    <main class="container">
         <!-- Filters -->
         <div class="action-bar">
             <div class="action-bar-left" style="display: flex; gap: 0.75rem; flex-wrap: wrap; flex: 1;">
@@ -155,7 +133,8 @@ if ($user['role'] !== 'admin') {
                 </table>
             </div>
         </section>
-    </main>
+
+    <?php renderLayoutEnd(); ?>
 
     <script>
         var CSRF_TOKEN = <?php echo json_encode(getCsrfToken()); ?>;

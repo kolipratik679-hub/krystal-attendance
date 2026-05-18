@@ -2,6 +2,7 @@
 require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/layout.php';
 requireLogin();
 $user = getSessionUser();
 $editId = isset($_GET['edit']) ? (int)$_GET['edit'] : 0;
@@ -28,23 +29,11 @@ if ($user['role'] === 'admin') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Preview Attendance - Krystal Attendance</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=4c1">
 </head>
 <body>
-    <header class="app-header print-hide">
-        <div class="container header-content">
-            <div class="brand">
-                <img src="assets/images/krystal-logo.png" alt="Krystal Logo" class="brand-logo">
-                <span class="brand-text">KRYSTAL ATTENDANCE</span>
-            </div>
-            <div style="display: flex; align-items: center; gap: 1rem;">
-                <span class="shift-badge"><?php echo esc($headerLabel); ?></span>
-                <span class="badge" style="background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main);"></span>
-            </div>
-        </div>
-    </header>
+    <?php renderLayoutStart($user, 'add-attendance', 'Preview — ' . esc($headerLabel)); ?>
 
-    <main class="container">
         <div class="action-bar print-hide">
             <div class="action-bar-left">
                 <?php
@@ -94,7 +83,7 @@ if ($user['role'] === 'admin') {
                     <div class="stat-box" style="border-bottom: 3px solid var(--danger-color);"><div class="stat-value" style="color: var(--danger-color);">0</div><div class="stat-label">Absent</div></div>
                 </div>
             </div>
-            <div class="table-responsive"><table><thead><tr><th style="width: 120px;">ID</th><th>Name</th><th style="text-align: right; width: 120px;">Status</th></tr></thead><tbody></tbody></table></div>
+            <div class="table-responsive"><table><thead><tr><th style="width: 120px;">ID</th><th>Name</th><th>Dep. Location</th><th style="text-align: right; width: 120px;">Status</th></tr></thead><tbody></tbody></table></div>
         </section>
 
         <!-- Section: Supervisors -->
@@ -109,7 +98,7 @@ if ($user['role'] === 'admin') {
                     <div class="stat-box" style="border-bottom: 3px solid var(--danger-color);"><div class="stat-value" style="color: var(--danger-color);">0</div><div class="stat-label">Absent</div></div>
                 </div>
             </div>
-            <div class="table-responsive"><table><thead><tr><th style="width: 120px;">ID</th><th>Name</th><th style="text-align: right; width: 120px;">Status</th></tr></thead><tbody></tbody></table></div>
+            <div class="table-responsive"><table><thead><tr><th style="width: 120px;">ID</th><th>Name</th><th>Dep. Location</th><th style="text-align: right; width: 120px;">Status</th></tr></thead><tbody></tbody></table></div>
         </section>
 
         <!-- Section: Bouncers -->
@@ -124,7 +113,7 @@ if ($user['role'] === 'admin') {
                     <div class="stat-box" style="border-bottom: 3px solid var(--danger-color);"><div class="stat-value" style="color: var(--danger-color);">0</div><div class="stat-label">Absent</div></div>
                 </div>
             </div>
-            <div class="table-responsive"><table><thead><tr><th style="width: 120px;">ID</th><th>Name</th><th style="text-align: right; width: 120px;">Status</th></tr></thead><tbody></tbody></table></div>
+            <div class="table-responsive"><table><thead><tr><th style="width: 120px;">ID</th><th>Name</th><th>Dep. Location</th><th style="text-align: right; width: 120px;">Status</th></tr></thead><tbody></tbody></table></div>
         </section>
 
         <!-- Section: Guards -->
@@ -139,7 +128,7 @@ if ($user['role'] === 'admin') {
                     <div class="stat-box" style="border-bottom: 3px solid var(--danger-color);"><div class="stat-value" style="color: var(--danger-color);">0</div><div class="stat-label">Absent</div></div>
                 </div>
             </div>
-            <div class="table-responsive"><table><thead><tr><th style="width: 120px;">ID</th><th>Name</th><th style="text-align: right; width: 120px;">Status</th></tr></thead><tbody></tbody></table></div>
+            <div class="table-responsive"><table><thead><tr><th style="width: 120px;">ID</th><th>Name</th><th>Dep. Location</th><th style="text-align: right; width: 120px;">Status</th></tr></thead><tbody></tbody></table></div>
         </section>
 
         <!-- Section: Drivers -->
@@ -154,7 +143,7 @@ if ($user['role'] === 'admin') {
                     <div class="stat-box" style="border-bottom: 3px solid var(--danger-color);"><div class="stat-value" style="color: var(--danger-color);">0</div><div class="stat-label">Absent</div></div>
                 </div>
             </div>
-            <div class="table-responsive"><table><thead><tr><th style="width: 120px;">ID</th><th>Name</th><th style="text-align: right; width: 120px;">Status</th></tr></thead><tbody></tbody></table></div>
+            <div class="table-responsive"><table><thead><tr><th style="width: 120px;">ID</th><th>Name</th><th>Dep. Location</th><th style="text-align: right; width: 120px;">Status</th></tr></thead><tbody></tbody></table></div>
         </section>
 
         <!-- Overall Summary -->
@@ -163,15 +152,20 @@ if ($user['role'] === 'admin') {
             <div class="summary-item"><div class="stat-label">Total Present</div><div class="stat-value" style="color: var(--success-color);">0</div></div>
             <div class="summary-item"><div class="stat-label">Total Absent</div><div class="stat-value" style="color: var(--danger-color);">0</div></div>
         </div>
-    </main>
 
+    <?php renderLayoutEnd(); ?>
+
+    <script>
+        var SESSION_USER = <?php echo json_encode(['role' => $user['role'], 'shift' => $user['shift'], 'location' => $user['location']]); ?>;
+    </script>
     <script src="js/app.js"></script>
     <style>
         @media print {
             .print-hide { display: none !important; }
             .print-header { display: block !important; }
             body { background: white; }
-            .container { max-width: 100%; padding: 0; }
+            .main-content { margin-left: 0 !important; }
+            .page-content { max-width: 100%; padding: 0 !important; }
             .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; margin-bottom: 1rem; }
             .summary-card { box-shadow: none; border: 2px solid #000; }
         }

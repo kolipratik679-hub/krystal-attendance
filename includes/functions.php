@@ -89,7 +89,7 @@ function getRecordEmployees($db, $recordId) {
 define('VALID_SHIFTS', ['morning', 'afternoon', 'night']);
 define('VALID_LOCATIONS', ['landside', 'asset', 'cargo']);
 define('VALID_POSTS', ['incharge', 'supervisor', 'bouncer', 'guard', 'driver']);
-define('VALID_STATUSES', ['present', 'absent', 'halfday', 'leave', 'weekoff']);
+define('VALID_STATUSES', ['present', 'absent', 'halfday', 'leave', 'weekoff', '']);
 define('MAX_EMPLOYEE_NAME_LENGTH', 150);
 define('MAX_EMPLOYEE_ID_LENGTH', 50);
 
@@ -199,4 +199,33 @@ function validateMasterEmployee($db, $badgeId, &$reason = '') {
         return false;
     }
     return $emp;
+}
+
+/* ---- Phase 5A: Deployment Location Helpers ---- */
+define('MAX_DEPLOYMENT_LOCATION_LENGTH', 100);
+
+/**
+ * Look up a deployment location by exact name.
+ */
+function getDeploymentLocationByName($db, $name) {
+    $stmt = $db->prepare('SELECT * FROM deployment_locations WHERE name = ? LIMIT 1');
+    $stmt->execute([$name]);
+    return $stmt->fetch();
+}
+
+/**
+ * Validate that a deployment location name exists in master data and is active.
+ * Returns the location row on success, false on failure.
+ */
+function validateMasterDeploymentLocation($db, $name, &$reason = '') {
+    $loc = getDeploymentLocationByName($db, $name);
+    if (!$loc) {
+        $reason = 'This deployment location is not registered in the system.';
+        return false;
+    }
+    if ($loc['status'] !== 'active') {
+        $reason = 'This deployment location is currently inactive.';
+        return false;
+    }
+    return $loc;
 }

@@ -49,7 +49,8 @@ if ($method === 'GET') {
                     'name'   => $emp['employee_name'],
                     'id'     => $emp['employee_id'],
                     'post'   => $emp['post'],
-                    'status' => $emp['status']
+                    'status' => $emp['status'],
+                    'deploymentLocation' => isset($emp['deployment_location']) ? $emp['deployment_location'] : ''
                 ];
             }
             $result[] = [
@@ -120,7 +121,8 @@ if ($method === 'POST') {
         $name = isset($emp['name']) ? trim($emp['name']) : '';
         $eid = isset($emp['id']) ? trim($emp['id']) : '';
         $post = isset($emp['post']) ? trim(strtolower($emp['post'])) : '';
-        $status = isset($emp['status']) ? trim(strtolower($emp['status'])) : 'present';
+        $status = isset($emp['status']) ? trim(strtolower($emp['status'])) : '';
+        $deploymentLocation = isset($emp['deploymentLocation']) ? trim($emp['deploymentLocation']) : '';
 
         if (!validateEmployeeName($name)) {
             jsonError("Employee #" . ($idx + 1) . ": Name is required (max " . MAX_EMPLOYEE_NAME_LENGTH . " chars).");
@@ -136,6 +138,17 @@ if ($method === 'POST') {
 
         if (!validateStatus($status)) {
             jsonError("Employee #" . ($idx + 1) . ": Invalid status. Allowed: " . implode(', ', VALID_STATUSES) . ".");
+        }
+
+        // Phase 5A: Validate deployment location (optional — only if provided)
+        if ($deploymentLocation !== '') {
+            if (mb_strlen($deploymentLocation) > MAX_DEPLOYMENT_LOCATION_LENGTH) {
+                jsonError("Employee #" . ($idx + 1) . ": Deployment location name is too long (max " . MAX_DEPLOYMENT_LOCATION_LENGTH . " chars).");
+            }
+            $locReason = '';
+            if (!validateMasterDeploymentLocation($db, $deploymentLocation, $locReason)) {
+                jsonError("Employee #" . ($idx + 1) . ": $locReason");
+            }
         }
 
         // Duplicate Staff ID Check
@@ -155,7 +168,8 @@ if ($method === 'POST') {
             'name' => $masterEmp['name'],  // Use canonical name from master
             'id' => $eid,
             'post' => $masterEmp['post'],  // Use canonical post from master
-            'status' => $status
+            'status' => $status,
+            'deploymentLocation' => $deploymentLocation
         ];
     }
 
@@ -202,9 +216,9 @@ if ($method === 'POST') {
         }
 
         // Insert validated employees
-        $ins = $db->prepare('INSERT INTO attendance_employees (attendance_record_id, employee_name, employee_id, post, status) VALUES (?, ?, ?, ?, ?)');
+        $ins = $db->prepare('INSERT INTO attendance_employees (attendance_record_id, employee_name, employee_id, post, status, deployment_location) VALUES (?, ?, ?, ?, ?, ?)');
         foreach ($validatedEmployees as $emp) {
-            $ins->execute([$recordId, $emp['name'], $emp['id'], $emp['post'], $emp['status']]);
+            $ins->execute([$recordId, $emp['name'], $emp['id'], $emp['post'], $emp['status'], $emp['deploymentLocation']]);
         }
 
         $db->commit();

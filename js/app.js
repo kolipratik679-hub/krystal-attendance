@@ -43,14 +43,16 @@ function downloadFile(content, filename, mimeType) {
 }
 
 function generateCsv(employees, date) {
-    var csv = 'Serial Number,Name,ID,Post,Status\n';
+    var csv = 'Serial Number,Name,ID,Post,Status,Dep. Location\n';
     employees.forEach(function(s, i) {
         var post = s.post.charAt(0).toUpperCase() + s.post.slice(1);
-        var statusStr = s.status ? s.status : 'present';
-        if (statusStr === 'halfday') statusStr = 'Half Day';
+        var statusStr = s.status ? s.status : '';
+        if (statusStr === '') statusStr = '--';
+        else if (statusStr === 'halfday') statusStr = 'Half Day';
         else if (statusStr === 'weekoff') statusStr = 'Week Off';
         else statusStr = statusStr.charAt(0).toUpperCase() + statusStr.slice(1);
-        csv += (i+1) + ',"' + s.name + '",' + s.id + ',' + post + ',' + statusStr + '\n';
+        var locStr = s.deploymentLocation ? s.deploymentLocation : '--';
+        csv += (i+1) + ',"' + s.name + '",' + s.id + ',' + post + ',' + statusStr + ',"' + locStr + '"\n';
     });
     return csv;
 }
@@ -66,6 +68,7 @@ function getPostIcon(post) {
 }
 
 function getStatusBadge(status) {
+    if (!status || status === '') return '--';
     if (status === 'absent') return '<span class="badge badge-danger">Absent</span>';
     if (status === 'halfday') return '<span class="badge badge-warning" style="background:#f59e0b;color:white;">Half Day</span>';
     if (status === 'leave') return '<span class="badge badge-info" style="background:#0dcaf0;color:white;">Leave</span>';
@@ -122,7 +125,7 @@ function apiCall(url, method, body) {
 
 /* ---- Validation constants (mirror backend) ---- */
 var VALID_POSTS = ['incharge', 'supervisor', 'bouncer', 'guard', 'driver'];
-var VALID_STATUSES = ['present', 'absent', 'halfday', 'leave', 'weekoff'];
+var VALID_STATUSES = ['present', 'absent', 'halfday', 'leave', 'weekoff', ''];
 var VALID_SHIFTS = ['morning', 'afternoon', 'night'];
 var VALID_LOCATIONS = ['landside', 'asset', 'cargo'];
 var MAX_NAME_LENGTH = 150;
@@ -264,14 +267,20 @@ function initAddAttendance() {
     var idInput = document.getElementById('staff-id');
     var postSelect = document.getElementById('staff-post');
     var statusSelect = document.getElementById('staff-status');
+    var deplocInput = document.getElementById('staff-deploc');
     var submitBtn = document.getElementById('submit-btn');
     var tbody = document.getElementById('attendance-tbody');
     var searchInput = document.getElementById('search-input');
     var statusFilterSelect = document.getElementById('status-filter');
     var dateInput = document.getElementById('attendance-date');
     var masterValidated = document.getElementById('staff-master-validated');
+    var deplocValidated = document.getElementById('staff-deploc-validated');
     var nameDropdown = document.getElementById('name-dropdown');
     var idDropdown = document.getElementById('id-dropdown');
+    var deplocDropdown = document.getElementById('deploc-dropdown');
+    
+    var filterDeplocInput = document.getElementById('filter-deploc');
+    var filterDeplocDropdown = document.getElementById('filter-deploc-dropdown');
 
     var previewBtn = document.getElementById('preview-btn');
     var finalSaveBtn = document.getElementById('final-save-btn');
@@ -380,6 +389,66 @@ function initAddAttendance() {
     if (idDropdown) setupAutocomplete(idInput, idDropdown, 'id');
     // ---- End Autocomplete ----
 
+    // ---- Deployment Location Autocomplete (Phase 5A) ----
+    function setupDeplocAutocomplete(inputEl, dropdownEl, validatedEl) {
+        var deplocDebounceTimer = null;
+        inputEl.addEventListener('input', function(e) {
+            // Ignore programmatic events that don't need fetch, just filter
+            if (!e.isTrusted && !e.detail?.fetch) return;
+
+            clearTimeout(deplocDebounceTimer);
+            var val = inputEl.value.trim();
+            if (val.length < 1) {
+                dropdownEl.classList.remove('active');
+                dropdownEl.innerHTML = '';
+                if (validatedEl) validatedEl.value = '0';
+                return;
+            }
+            if (validatedEl) validatedEl.value = '0';
+            deplocDebounceTimer = setTimeout(function() {
+                apiCall('api/deployment-locations.php?search=' + encodeURIComponent(val) + '&status=active&limit=10', 'GET')
+                .then(function(data) {
+                    if (!data.success || !data.locations || data.locations.length === 0) {
+                        dropdownEl.innerHTML = '<div class="autocomplete-no-results">Location not found.</div>';
+                        dropdownEl.classList.add('active');
+                        return;
+                    }
+                    dropdownEl.innerHTML = '';
+                    data.locations.forEach(function(loc) {
+                        var item = document.createElement('div');
+                        item.className = 'autocomplete-item';
+                        item.innerHTML = '<span class="emp-name">' + escHtmlInline(loc.name) + '</span>';
+                        item.addEventListener('mousedown', function(e) {
+                            e.preventDefault();
+                            inputEl.value = loc.name;
+                            if (validatedEl) validatedEl.value = '1';
+                            dropdownEl.classList.remove('active');
+                            // Trigger input event to re-render table if it's a filter
+                            inputEl.dispatchEvent(new CustomEvent('input', { bubbles: true }));
+                        });
+                        dropdownEl.appendChild(item);
+                    });
+                    dropdownEl.classList.add('active');
+                });
+            }, 250);
+        });
+
+        inputEl.addEventListener('blur', function() {
+            setTimeout(function() { dropdownEl.classList.remove('active'); }, 200);
+        });
+
+        inputEl.addEventListener('focus', function() {
+            if (dropdownEl.children.length > 0 && inputEl.value.trim().length >= 1) {
+                dropdownEl.classList.add('active');
+            }
+        });
+    }
+
+    if (deplocDropdown) setupDeplocAutocomplete(deplocInput, deplocDropdown, deplocValidated);
+    if (filterDeplocDropdown) {
+        setupDeplocAutocomplete(filterDeplocInput, filterDeplocDropdown, null);
+    }
+
     // Load edit data from server if editing
     if (editRecord) {
         attendanceData = editRecord.employees.slice();
@@ -426,12 +495,17 @@ function initAddAttendance() {
     function renderTable() {
         var searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
         var statusFilter = statusFilterSelect ? statusFilterSelect.value : '';
+        var deplocFilter = filterDeplocInput ? filterDeplocInput.value.toLowerCase().trim() : '';
+        
         tbody.innerHTML = '';
         var serial = 1;
         attendanceData.forEach(function(staff, index) {
             var matchSearch = staff.name.toLowerCase().includes(searchTerm) || staff.id.toString().toLowerCase().includes(searchTerm);
             var matchStatus = (statusFilter === '' || staff.status === statusFilter);
-            if (!matchSearch || !matchStatus) return;
+            var empLoc = staff.deploymentLocation ? staff.deploymentLocation.toLowerCase() : '';
+            var matchDeploc = (deplocFilter === '' || empLoc.includes(deplocFilter));
+            
+            if (!matchSearch || !matchStatus || !matchDeploc) return;
             var icon = getPostIcon(staff.post);
             var displayPost = staff.post.charAt(0).toUpperCase() + staff.post.slice(1);
             var tr = document.createElement('tr');
@@ -441,6 +515,7 @@ function initAddAttendance() {
                 '<td>' + staff.id + '</td>' +
                 '<td>' + displayPost + '</td>' +
                 '<td>' + getStatusBadge(staff.status) + '</td>' +
+                '<td>' + (staff.deploymentLocation ? escHtmlInline(staff.deploymentLocation) : '--') + '</td>' +
                 '<td style="text-align:right;"><div class="flex justify-end gap-2">' +
                     '<button type="button" class="btn btn-outline btn-icon edit-btn" data-index="' + index + '" title="Edit"><i class="fa-solid fa-pen"></i></button>' +
                     '<button type="button" class="btn btn-danger btn-icon delete-btn" data-index="' + index + '" title="Delete"><i class="fa-regular fa-trash-can"></i></button>' +
@@ -461,6 +536,7 @@ function initAddAttendance() {
         var id = idInput.value.trim();
         var post = postSelect.value;
         var status = statusSelect.value;
+        var deploc = deplocInput ? deplocInput.value.trim() : '';
 
         // Frontend validation (mirrors backend)
         if (!name) { alert('Please enter a name.'); return; }
@@ -468,7 +544,14 @@ function initAddAttendance() {
         if (!id || isNaN(id)) { alert('Please enter a valid numeric ID.'); return; }
         if (id.length > MAX_ID_LENGTH) { alert('ID is too long (max ' + MAX_ID_LENGTH + ' characters).'); return; }
         if (!post || VALID_POSTS.indexOf(post.toLowerCase()) === -1) { alert('Please select a valid post.'); return; }
-        if (!status || VALID_STATUSES.indexOf(status.toLowerCase()) === -1) { alert('Please select a valid status.'); return; }
+        if (VALID_STATUSES.indexOf(status.toLowerCase()) === -1) { alert('Please select a valid status.'); return; }
+
+        // Phase 5A: Validate deployment location
+        if (deploc && deplocValidated && deplocValidated.value !== '1') {
+            alert('This deployment location is not registered in the system.\n\nPlease select a location from the autocomplete suggestions.');
+            if (deplocInput) deplocInput.focus();
+            return;
+        }
 
         // Phase 4A: Master validation check
         if (masterValidated && masterValidated.value !== '1') {
@@ -487,14 +570,16 @@ function initAddAttendance() {
         }
 
         if (editIndex > -1) {
-            attendanceData[editIndex] = { name: name, id: id, post: post, status: status };
+            attendanceData[editIndex] = { name: name, id: id, post: post, status: status, deploymentLocation: deploc };
             editIndex = -1;
             submitBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add';
         } else {
-            attendanceData.push({ name: name, id: id, post: post, status: status });
+            attendanceData.push({ name: name, id: id, post: post, status: status, deploymentLocation: deploc });
         }
-        nameInput.value = ''; idInput.value = ''; postSelect.value = ''; statusSelect.value = 'present';
+        nameInput.value = ''; idInput.value = ''; postSelect.value = ''; statusSelect.value = ''; 
+        if (deplocInput) deplocInput.value = '';
         if (masterValidated) masterValidated.value = '0';
+        if (deplocValidated) deplocValidated.value = '0';
         persistAttendanceData();
         renderTable();
     });
@@ -503,9 +588,11 @@ function initAddAttendance() {
     function editStaff(index) {
         var s = attendanceData[index];
         nameInput.value = s.name; idInput.value = s.id;
-        postSelect.value = s.post.toLowerCase(); statusSelect.value = s.status || 'present';
+        postSelect.value = s.post.toLowerCase(); statusSelect.value = s.status || '';
+        if (deplocInput) deplocInput.value = s.deploymentLocation || '';
         editIndex = index;
         if (masterValidated) masterValidated.value = '1';  // Trust existing data
+        if (deplocValidated && deplocInput && deplocInput.value) deplocValidated.value = '1';
         submitBtn.innerHTML = '<i class="fa-solid fa-check"></i> Update';
         nameInput.focus();
     }
@@ -515,8 +602,10 @@ function initAddAttendance() {
         attendanceData.splice(index, 1);
         if (editIndex === index) {
             editIndex = -1; nameInput.value = ''; idInput.value = '';
-            postSelect.value = ''; statusSelect.value = 'present';
+            postSelect.value = ''; statusSelect.value = ''; 
+            if (deplocInput) deplocInput.value = '';
             if (masterValidated) masterValidated.value = '0';
+            if (deplocValidated) deplocValidated.value = '0';
             submitBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add';
         } else if (editIndex > index) { editIndex--; }
         persistAttendanceData();
@@ -525,6 +614,7 @@ function initAddAttendance() {
 
     if (searchInput) searchInput.addEventListener('input', renderTable);
     if (statusFilterSelect) statusFilterSelect.addEventListener('change', renderTable);
+    if (filterDeplocInput) filterDeplocInput.addEventListener('input', renderTable);
 
     // Helper: build preview/edit URL with shift + location params for admin
     function buildAdminParams(shift, location, editId) {
@@ -619,9 +709,10 @@ function initPreview() {
     // Try to find the right key from URL params or fallback to scanning
     var previewStorageKey = 'previewData';
     var urlParams = new URLSearchParams(window.location.search);
-    var urlLoc = urlParams.get('location') || '';
-    var urlShift = urlParams.get('shift') || '';
-    if (urlLoc && urlShift) {
+    var urlLoc = urlParams.get('location') || (typeof SESSION_USER !== 'undefined' ? SESSION_USER.location : '');
+    var urlShift = urlParams.get('shift') || (typeof SESSION_USER !== 'undefined' ? SESSION_USER.shift : '');
+
+    if (urlLoc && urlShift && urlLoc !== 'all' && urlShift !== 'all') {
         previewStorageKey = 'previewData_' + urlLoc + '_' + urlShift;
     } else {
         // Fallback: try to find any previewData_ key
@@ -678,7 +769,13 @@ function initPreview() {
         if (!section) return;
         var group = grouped[key] || [];
         var pres = 0, abs = 0;
-        group.forEach(function(s) { if (s.status === 'absent' || s.status === 'leave' || s.status === 'weekoff') abs++; else pres++; });
+        group.forEach(function(s) { 
+            if (s.status === 'absent' || s.status === 'leave' || s.status === 'weekoff') {
+                abs++;
+            } else if (s.status === 'present' || s.status === 'halfday') {
+                pres++;
+            }
+        });
         totalStaff += group.length; totalPresent += pres; totalAbsent += abs;
 
         var sv = section.querySelectorAll('.stat-value');
@@ -692,7 +789,7 @@ function initPreview() {
             } else {
                 group.forEach(function(s) {
                     var tr = document.createElement('tr');
-                    tr.innerHTML = '<td>' + s.id + '</td><td>' + s.name + '</td><td style="text-align:right;">' + getStatusBadge(s.status) + '</td>';
+                    tr.innerHTML = '<td>' + s.id + '</td><td>' + s.name + '</td><td>' + (s.deploymentLocation ? escHtmlInline(s.deploymentLocation) : '--') + '</td><td style="text-align:right;">' + getStatusBadge(s.status) + '</td>';
                     tb.appendChild(tr);
                 });
             }

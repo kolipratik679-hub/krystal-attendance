@@ -2,6 +2,7 @@
 require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/layout.php';
 requireLogin();
 
 $user = getSessionUser();
@@ -19,32 +20,18 @@ $headerLabel = 'Main Admin';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Select Location & Shift - Krystal Attendance</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=4c1">
 </head>
 <body>
-    <header class="app-header">
-        <div class="container header-content">
-            <a href="dashboard.php" class="brand">
-                <img src="assets/images/krystal-logo.png" alt="Krystal Logo" class="brand-logo">
-                <span class="brand-text">KRYSTAL ATTENDANCE</span>
-            </a>
-            <div style="display: flex; align-items: center; gap: 1rem;">
-                <span class="shift-badge"><?php echo esc($headerLabel); ?></span>
-                <a href="logout.php" class="btn btn-outline btn-sm" title="Logout">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                </a>
-            </div>
-        </div>
-    </header>
+    <?php renderLayoutStart($user, 'add-attendance', 'Select Location & Shift'); ?>
 
-    <main class="container">
         <div style="max-width: 960px; margin: 0 auto;">
             <div style="margin-bottom: 2rem; text-align: center;">
                 <h2 style="color: var(--text-main); margin-bottom: 0.5rem;">Select Location & Shift</h2>
                 <p style="color: var(--text-muted);">Please choose the location and shift for which you want to add attendance.</p>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;">
+            <div class="shift-grid">
                 <!-- LANDSIDE Column -->
                 <div>
                     <h3 style="text-align: center; color: var(--text-main); margin-bottom: 1rem; font-size: 1.1rem;">
@@ -151,7 +138,8 @@ $headerLabel = 'Main Admin';
                 </a>
             </div>
         </div>
-    </main>
+
+    <?php renderLayoutEnd(); ?>
 
     <style>
         .shift-card:hover {
@@ -159,9 +147,14 @@ $headerLabel = 'Main Admin';
             box-shadow: var(--shadow-lg);
             border-color: var(--primary-color) !important;
         }
+        .shift-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
         @media (max-width: 768px) {
-            div[style*="grid-template-columns: repeat(3"] {
-                grid-template-columns: 1fr !important;
+            .shift-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
